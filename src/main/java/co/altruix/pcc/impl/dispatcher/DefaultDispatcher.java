@@ -55,8 +55,6 @@ class DefaultDispatcher implements Dispatcher {
                     final boolean success =
                             processor.isMessageProcessingSucceeded();
 
-                    curChannel.removeFromChannel(curMessage);
-
                     LOGGER.info(
                             "Message processing result: {} on message '{}'",
                             new Object[] { success, curMessage });

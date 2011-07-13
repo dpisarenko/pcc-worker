@@ -11,6 +11,9 @@
 
 package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.ImmediateSchedulingRequest;
 import co.altruix.pcc.api.cdm.PccMessage;
@@ -22,20 +25,23 @@ import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedul
  */
 class DefaultImmediateSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
+
+    private PccMessage message;
 
     public void setMessage(final PccMessage aMessage) {
-        // TODO Auto-generated method stub
-
+        this.message = aMessage;
     }
 
     public boolean isMessageProcessingSucceeded() {
-        // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     public void run() throws PccException {
-        // TODO Auto-generated method stub
-
+        final ImmediateSchedulingRequest request = (ImmediateSchedulingRequest) this.message;
+        
+        LOGGER.debug("Immediate rescheduling request for user {}", request.getUserId());
     }
 
 }

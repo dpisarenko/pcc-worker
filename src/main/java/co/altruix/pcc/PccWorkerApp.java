@@ -34,6 +34,12 @@ public class PccWorkerApp {
             } catch (final PccException exception) {
                 LOGGER.error("", exception);
             }
+            
+            try {
+                Thread.sleep(500);
+            } catch (final InterruptedException exception) {
+                LOGGER.error("", exception);
+            }
         }
     }
 

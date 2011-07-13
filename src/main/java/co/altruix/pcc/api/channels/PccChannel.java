@@ -11,11 +11,12 @@
 
 package co.altruix.pcc.api.channels;
 
+import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
 
 public interface PccChannel {
-    void init();
+    void init() throws PccException;
     boolean newMessagesAvailable();
     PccMessage getNextMessage();
-    void removeFromChannel(final PccMessage aMessage);
+    void close() throws PccException;
 }
