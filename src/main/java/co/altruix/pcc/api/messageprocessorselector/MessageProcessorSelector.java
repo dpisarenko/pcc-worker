@@ -12,14 +12,17 @@
 package co.altruix.pcc.api.messageprocessorselector;
 
 import ru.altruix.commons.api.conventions.SingleActivityModule;
+import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
 import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 
 /**
  * @author DP118M
- *
+ * 
  */
-public interface MessageProcessorSelector extends SingleActivityModule {
+public interface MessageProcessorSelector extends SingleActivityModule,
+        ModuleWithInjectableDependencies {
     void setMessage(final PccMessage aMessage);
+
     MessageProcessor getMessageProcessor();
 }

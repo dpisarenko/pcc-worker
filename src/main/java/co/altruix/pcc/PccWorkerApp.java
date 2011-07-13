@@ -73,10 +73,11 @@ public class PccWorkerApp {
         }
     }
 
-    private Dispatcher getDispatcher(final Injector injector) {
+    private Dispatcher getDispatcher(final Injector aInjector) {
         final DispatcherFactory factory =
-                injector.getInstance(DispatcherFactory.class);
+                aInjector.getInstance(DispatcherFactory.class);
         final Dispatcher dispatcher = factory.create();
+        dispatcher.setInjector(aInjector);
         return dispatcher;
     }
 

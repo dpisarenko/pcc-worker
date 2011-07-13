@@ -25,6 +25,7 @@ import co.altruix.pcc.api.channels.PccChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
+import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
 
 /**
  * @author DP118M
@@ -71,8 +72,11 @@ class DefaultDispatcher implements Dispatcher {
 
     public void setInjector(final Injector aInjector) {
         if (aInjector != null) {
-            this.selector =
-                    aInjector.getInstance(MessageProcessorSelector.class);
+            final MessageProcessorSelectorFactory factory =
+                    aInjector
+                            .getInstance(MessageProcessorSelectorFactory.class);
+            this.selector = factory.create();
+            this.selector.setInjector(aInjector);
         }
     }
 
