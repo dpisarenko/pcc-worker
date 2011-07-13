@@ -11,30 +11,60 @@
 
 package co.altruix.pcc;
 
+import javax.jms.Connection;
+import javax.jms.Session;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
+
 import ru.altruix.commons.api.di.PccException;
-import co.altruix.pcc.api.channels.PccChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
+import co.altruix.pcc.api.dispatcher.DispatcherFactory;
+import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
+import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
+import co.altruix.pcc.api.queuechannel.QueueChannel;
+import co.altruix.pcc.api.queuechannel.QueueChannelFactory;
+import co.altruix.pcc.api.shutdownhook.ShutdownHook;
+import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
+import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
 public class PccWorkerApp {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PccWorkerApp.class);
 
-    void run() {
-        Dispatcher processor = null;
-        PccChannel webToWorkerQueueChannel = getQueueChannel("PCC.WEB.WORKER");
+    void run() throws PccException {
+        final DefaultPccWorkerInjectorFactory injectorFactory =
+                new DefaultPccWorkerInjectorFactory();
+        final Injector injector = injectorFactory.createInjector();
 
-        processor.addChannel(webToWorkerQueueChannel);
+        final MqInfrastructureInitializer mqInitializer = initMq(injector);
+
+        final Session session = mqInitializer.getSession();
+
+        setupShutdownHook(injector, session,
+                mqInitializer.getConnection());
+
+        final QueueChannelFactory channelFactory =
+                injector.getInstance(QueueChannelFactory.class);
+        final QueueChannel web2workerQueue = channelFactory.create();
+
+        web2workerQueue.setQueueName("PCC.WEB.WORKER");
+        web2workerQueue.setSession(session);
+        web2workerQueue.init();
+
+        final Dispatcher dispatcher = getDispatcher(injector);
+
+        dispatcher.addChannel(web2workerQueue);
 
         while (true) {
             try {
-                processor.run();
+                dispatcher.run();
             } catch (final PccException exception) {
                 LOGGER.error("", exception);
             }
-            
+
             try {
                 Thread.sleep(500);
             } catch (final InterruptedException exception) {
@@ -43,9 +73,46 @@ public class PccWorkerApp {
         }
     }
 
-    private PccChannel getQueueChannel(String string) {
-        // TODO Auto-generated method stub
-        return null;
+    private Dispatcher getDispatcher(final Injector injector) {
+        final DispatcherFactory factory =
+                injector.getInstance(DispatcherFactory.class);
+        final Dispatcher dispatcher = factory.create();
+        return dispatcher;
+    }
+
+    private MqInfrastructureInitializer initMq(final Injector injector)
+            throws PccException {
+        final MqInfrastructureInitializerFactory factory =
+                injector.getInstance(MqInfrastructureInitializerFactory.class);
+        final MqInfrastructureInitializer mqInitializer = factory.create();
+
+        mqInitializer.setBrokerUrl("");
+        mqInitializer.setPassword("");
+        mqInitializer.setBrokerUrl("failover://tcp://localhost:61616");
+        mqInitializer.run();
+        return mqInitializer;
+    }
+
+    private void setupShutdownHook(final Injector injector,
+            final Session aSession, final Connection aConnection) {
+        final ShutdownHookFactory factory =
+                injector.getInstance(ShutdownHookFactory.class);
+        final ShutdownHook hook = factory.create();
+
+        hook.setSession(aSession);
+        hook.setConnection(aConnection);
+
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            public void run()
+            {
+                try {
+                    hook.run();
+                } catch (final PccException exception) {
+                    LOGGER.error("", exception);
+                }
+            }
+        });
     }
 
     public static void main(String[] args) {

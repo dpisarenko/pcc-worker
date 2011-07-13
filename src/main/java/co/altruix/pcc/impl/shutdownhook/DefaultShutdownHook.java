@@ -38,7 +38,6 @@ class DefaultShutdownHook implements ShutdownHook {
     private Session session;
 
     public void run() throws PccException {
-        // TODO Auto-generated method stub
         for (final PccChannel curChannel : this.channels) {
             try {
                 curChannel.close();

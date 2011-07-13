@@ -11,6 +11,7 @@
 
 package co.altruix.pcc.api.mq;
 
+import javax.jms.Connection;
 import javax.jms.Session;
 
 import ru.altruix.commons.api.conventions.SingleActivityModule;
@@ -24,4 +25,5 @@ public interface MqInfrastructureInitializer extends SingleActivityModule {
     void setPassword(final String aPassword);
     void setBrokerUrl(final String aUrl);
     Session getSession();
+    Connection getConnection();
 }

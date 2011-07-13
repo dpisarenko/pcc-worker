@@ -24,12 +24,13 @@ import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
  * @author DP118M
  * 
  */
-public class DefaultMqInfrastructureInitializer implements
+class DefaultMqInfrastructureInitializer implements
         MqInfrastructureInitializer {
     private String username;
     private String password;
     private String url;
     private Session session;
+    private Connection connection;
 
     public void run() throws PccException {
         try {
@@ -37,8 +38,7 @@ public class DefaultMqInfrastructureInitializer implements
                     new ActiveMQConnectionFactory(this.username, this.password,
                             this.url);
 
-            // Create a Connection
-            final Connection connection = connectionFactory.createConnection();
+            connection = connectionFactory.createConnection();
             connection.start();
 
             // Create a Session
@@ -63,6 +63,10 @@ public class DefaultMqInfrastructureInitializer implements
 
     public Session getSession() {
         return session;
+    }
+
+    public Connection getConnection() {
+        return connection;
     }
 
 }
