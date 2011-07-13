@@ -116,7 +116,9 @@ public class PccWorkerApp {
         });
     }
 
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public static void main(String[] args) throws PccException {
+        final PccWorkerApp app = new PccWorkerApp();
+        
+        app.run();
     }
 }

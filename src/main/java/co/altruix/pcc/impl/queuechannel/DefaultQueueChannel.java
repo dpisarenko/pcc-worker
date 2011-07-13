@@ -41,6 +41,12 @@ class DefaultQueueChannel implements QueueChannel {
     public boolean newMessagesAvailable() {
         try {
             this.nextMessage = this.consumer.receiveNoWait();
+
+            if ((this.nextMessage != null)
+                    && !(this.nextMessage instanceof PccMessage)) {
+                this.nextMessage = null;
+            }
+
         } catch (final JMSException exception) {
             this.nextMessage = null;
             LOGGER.error("", exception);
