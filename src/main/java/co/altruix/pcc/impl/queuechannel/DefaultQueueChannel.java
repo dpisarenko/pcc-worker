@@ -15,6 +15,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
 import org.slf4j.Logger;
@@ -36,17 +37,25 @@ class DefaultQueueChannel implements QueueChannel {
     private Session session;
     private String queueName;
     private MessageConsumer consumer;
-    private Message nextMessage;
+    private PccMessage nextMessage;
 
     public boolean newMessagesAvailable() {
+        this.nextMessage = null;
+        
+        Message message = null;
         try {
-            this.nextMessage = this.consumer.receiveNoWait();
+            message = this.consumer.receiveNoWait();
 
-            if ((this.nextMessage != null)
-                    && !(this.nextMessage instanceof PccMessage)) {
-                this.nextMessage = null;
+            if ((message != null) && (message instanceof ObjectMessage))
+            {
+                final ObjectMessage objectMessage = (ObjectMessage) message;
+                final Object object = objectMessage.getObject();
+                
+                if ((object != null) && (object instanceof PccMessage))
+                {
+                    this.nextMessage = (PccMessage) object;
+                }
             }
-
         } catch (final JMSException exception) {
             this.nextMessage = null;
             LOGGER.error("", exception);
@@ -56,7 +65,7 @@ class DefaultQueueChannel implements QueueChannel {
     }
 
     public PccMessage getNextMessage() {
-        return (PccMessage) this.nextMessage;
+        return this.nextMessage;
     }
 
     public void init() throws PccException {
