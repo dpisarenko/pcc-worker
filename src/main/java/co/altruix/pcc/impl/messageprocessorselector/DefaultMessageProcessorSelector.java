@@ -14,12 +14,12 @@ package co.altruix.pcc.impl.messageprocessorselector;
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
-import co.altruix.pcc.api.cdm.ImmediateSchedulingRequest;
 import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
+import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
  * @author DP118M
@@ -33,7 +33,7 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
     public void run() throws PccException {
         if (this.message == null) {
             this.processor = null;
-        } else if (this.message instanceof ImmediateSchedulingRequest) {
+        } else if (this.message instanceof DefaultImmediateSchedulingRequest) {
             this.processor = this.immediateSchedulingRequestMessageProcessor;
         } else {
             this.processor = null;

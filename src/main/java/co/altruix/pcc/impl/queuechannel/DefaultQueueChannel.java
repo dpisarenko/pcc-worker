@@ -41,18 +41,16 @@ class DefaultQueueChannel implements QueueChannel {
 
     public boolean newMessagesAvailable() {
         this.nextMessage = null;
-        
+
         Message message = null;
         try {
             message = this.consumer.receiveNoWait();
 
-            if ((message != null) && (message instanceof ObjectMessage))
-            {
+            if ((message != null) && (message instanceof ObjectMessage)) {
                 final ObjectMessage objectMessage = (ObjectMessage) message;
                 final Object object = objectMessage.getObject();
-                
-                if ((object != null) && (object instanceof PccMessage))
-                {
+
+                if ((object != null) && (object instanceof PccMessage)) {
                     this.nextMessage = (PccMessage) object;
                 }
             }
