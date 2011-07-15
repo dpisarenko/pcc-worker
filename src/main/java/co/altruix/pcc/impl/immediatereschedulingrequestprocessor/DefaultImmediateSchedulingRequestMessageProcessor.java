@@ -42,6 +42,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         final ImmediateSchedulingRequest request = (ImmediateSchedulingRequest) this.message;
         
         LOGGER.debug("Immediate rescheduling request for user {}", request.getUserId());
+        
+        // UserData userData = persistence.getUser();
     }
 
 }
