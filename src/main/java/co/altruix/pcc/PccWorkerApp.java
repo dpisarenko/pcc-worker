@@ -17,6 +17,8 @@ import javax.jms.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import at.silverstrike.pcc.api.persistence.Persistence;
+
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
@@ -39,6 +41,10 @@ public class PccWorkerApp {
                 new DefaultPccWorkerInjectorFactory();
         final Injector injector = injectorFactory.createInjector();
 
+        final Persistence persistence = injector.getInstance(Persistence.class);
+        
+        persistence.openSession();
+        
         final MqInfrastructureInitializer mqInitializer = initMq(injector);
 
         final Session session = mqInitializer.getSession();

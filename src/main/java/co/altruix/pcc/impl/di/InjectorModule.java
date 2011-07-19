@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.impl.di;
 
+import at.silverstrike.pcc.api.persistence.Persistence;
+import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
@@ -47,5 +49,8 @@ class InjectorModule extends AbstractModule {
                 new DefaultQueueChannelFactory());
         bind(ShutdownHookFactory.class).toInstance(
                 new DefaultShutdownHookFactory());
+        bind(Persistence.class).toInstance(
+                new DefaultPersistence());
+
     }
 }

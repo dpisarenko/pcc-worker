@@ -54,6 +54,7 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
                     aInjector
                             .getInstance(ImmediateSchedulingRequestMessageProcessorFactory.class);
             immediateSchedulingRequestMessageProcessor = factory.create();
+            immediateSchedulingRequestMessageProcessor.setInjector(aInjector);
         }
     }
 }
