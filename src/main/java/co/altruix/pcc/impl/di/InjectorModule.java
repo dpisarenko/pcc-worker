@@ -11,10 +11,13 @@
 
 package co.altruix.pcc.impl.di;
 
+import at.silverstrike.pcc.api.export2tj3.TaskJuggler3Exporter;
+import at.silverstrike.pcc.api.export2tj3.TaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 import at.silverstrike.pcc.api.projectscheduler.ProjectSchedulerFactory;
+import at.silverstrike.pcc.impl.export2tj3.DefaultTaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pcc.DefaultGoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
 import at.silverstrike.pcc.impl.projectscheduler.DefaultProjectSchedulerFactory;
@@ -59,6 +62,13 @@ class InjectorModule extends AbstractModule {
         bind(GoogleCalendarTasks2PccImporterFactory.class).toInstance(
                 new DefaultGoogleCalendarTasks2PccImporterFactory());
         bind(ProjectScheduler.class).toInstance(getProjectScheduler());
+        bind(TaskJuggler3Exporter.class).toInstance(getTaskJuggler3Exporter());
+    }
+
+    private TaskJuggler3Exporter getTaskJuggler3Exporter() {
+        final TaskJuggler3ExporterFactory factory = new DefaultTaskJuggler3ExporterFactory();
+        
+        return factory.create();
     }
 
     private ProjectScheduler getProjectScheduler() {
