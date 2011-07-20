@@ -12,14 +12,21 @@
 package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import at.silverstrike.pcc.api.export2tj3.InvalidDurationException;
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporter;
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
+import at.silverstrike.pcc.api.model.Resource;
+import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
+import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 
 import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
@@ -50,12 +57,14 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             "294496059397.apps.googleusercontent.com";
     private static final String CLIENT_SECRET = "J1JRmoTA-EmOjTwKkW-eLHLY";
 
+    private static final int ONE_MONTH = 1;
+
     private Persistence persistence;
 
     private PccMessage message;
 
     private Injector injector;
-    
+
     public void setMessage(final PccMessage aMessage) {
         this.message = aMessage;
     }
@@ -74,7 +83,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                 userData.getUsername());
 
         importDataFromGoogleTasks(userData);
-        calculatePlan();
+        calculatePlan(userData);
         exportDataToGoogleCalendar();
 
         LOGGER.debug(
@@ -82,7 +91,55 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                 userData.getUsername());
     }
 
-    private void calculatePlan() {
+    private void calculatePlan(final UserData aUser) {
+        final ProjectScheduler scheduler =
+                injector.getInstance(ProjectScheduler.class);
+
+        final Persistence persistence =
+                this.injector.getInstance(Persistence.class);
+
+        LOGGER.debug("calculatePlan, user: {}", aUser.getId());
+
+        final List<SchedulingObject> schedulingObjectsToExport =
+                persistence.getTopLevelTasks(aUser);
+
+        LOGGER.debug("SCHEDULING OBJECTS TO EXPORT (START)");
+        for (final SchedulingObject curSchedulingObject : schedulingObjectsToExport) {
+            LOGGER.debug("Name: {}, ID: {}",
+                    new Object[] { curSchedulingObject.getName(),
+                            curSchedulingObject.getId() });
+        }
+        LOGGER.debug("SCHEDULING OBJECTS TO EXPORT (END)");
+
+        scheduler.getProjectExportInfo().setSchedulingObjectsToExport(
+                schedulingObjectsToExport);
+
+        final List<Resource> resources = new LinkedList<Resource>();
+        resources.add(persistence.getCurrentWorker(aUser));
+
+        scheduler.getProjectExportInfo().setResourcesToExport(resources);
+
+        scheduler.getProjectExportInfo().setProjectName("pcc");
+
+        final Date now = new Date();
+
+        scheduler.getProjectExportInfo().setNow(now);
+        scheduler.getProjectExportInfo().setCopyright("Dmitri Pisarenko");
+        scheduler.getProjectExportInfo().setCurrency("EUR");
+        scheduler.getProjectExportInfo().setSchedulingHorizonMonths(ONE_MONTH);
+        scheduler.getProjectExportInfo().setUserData(aUser);
+
+        scheduler.setDirectory(System.getProperty("user.dir") + "/");
+        scheduler.setInjector(injector);
+        scheduler.setNow(now);
+
+        try {
+            scheduler.run();
+        } catch (final InvalidDurationException exception) {
+            LOGGER.error("", exception);
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
     }
 
     private void exportDataToGoogleCalendar() {
@@ -99,7 +156,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                     new GoogleAccessTokenRequest.GoogleRefreshTokenGrant(
                             httpTransport,
                             jsonFactory,
-                            CLIENT_ID, CLIENT_SECRET, aUserData.getGoogleTasksRefreshToken())
+                            CLIENT_ID, CLIENT_SECRET,
+                            aUserData.getGoogleTasksRefreshToken())
                             .execute();
 
             final GoogleAccessProtectedResource accessProtectedResource =
@@ -130,11 +188,11 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             LOGGER.error("", exception);
         }
     }
-    
+
     public void setInjector(final Injector aInjector) {
         if (aInjector != null) {
             this.persistence = aInjector.getInstance(Persistence.class);
-            
+
             this.injector = aInjector;
         }
     }

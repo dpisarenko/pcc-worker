@@ -13,8 +13,11 @@ package co.altruix.pcc.impl.di;
 
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
+import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
+import at.silverstrike.pcc.api.projectscheduler.ProjectSchedulerFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pcc.DefaultGoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
+import at.silverstrike.pcc.impl.projectscheduler.DefaultProjectSchedulerFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
@@ -55,5 +58,13 @@ class InjectorModule extends AbstractModule {
                 new DefaultPersistence());
         bind(GoogleCalendarTasks2PccImporterFactory.class).toInstance(
                 new DefaultGoogleCalendarTasks2PccImporterFactory());
+        bind(ProjectScheduler.class).toInstance(getProjectScheduler());
+    }
+
+    private ProjectScheduler getProjectScheduler() {
+        final ProjectSchedulerFactory factory =
+                new DefaultProjectSchedulerFactory();
+
+        return factory.create();
     }
 }
