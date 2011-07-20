@@ -301,19 +301,23 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         final JacksonFactory jsonFactory = new JacksonFactory();
 
         try {
+            final String googleTasksRefreshToken = aUserData.getGoogleTasksRefreshToken();
+            
+            LOGGER.debug("googleTasksRefreshToken: {}", googleTasksRefreshToken);
+            
             final AccessTokenResponse response =
                     new GoogleAccessTokenRequest.GoogleRefreshTokenGrant(
                             httpTransport,
                             jsonFactory,
                             CLIENT_ID, CLIENT_SECRET,
-                            aUserData.getGoogleTasksRefreshToken())
+                            googleTasksRefreshToken)
                             .execute();
 
             final GoogleAccessProtectedResource accessProtectedResource =
                     new GoogleAccessProtectedResource(
                             response.accessToken, httpTransport, jsonFactory,
                             CLIENT_ID, CLIENT_SECRET,
-                            aUserData.getGoogleTasksRefreshToken());
+                            googleTasksRefreshToken);
 
             final Tasks service =
                     new Tasks(httpTransport, accessProtectedResource,
