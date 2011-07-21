@@ -192,7 +192,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
             final URL feedUrl =
                     new URL(
-                            "http://www.google.com/calendar/feeds/default/allcalendars/full");
+                            "https://www.google.com/calendar/feeds/default/allcalendars/full");
             final CalendarFeed resultFeed =
                     calendarService.getFeed(feedUrl, CalendarFeed.class);
 
