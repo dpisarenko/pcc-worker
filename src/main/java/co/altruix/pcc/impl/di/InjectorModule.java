@@ -15,12 +15,14 @@ import at.silverstrike.pcc.api.export2tj3.TaskJuggler3Exporter;
 import at.silverstrike.pcc.api.export2tj3.TaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.api.gcaltasks2pccimporter.GoogleCalendarTasks2PccImporter2Factory;
+import at.silverstrike.pcc.api.gtaskrelevance.IsGoogleTaskRelevantCalculatorFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 import at.silverstrike.pcc.api.projectscheduler.ProjectSchedulerFactory;
 import at.silverstrike.pcc.impl.export2tj3.DefaultTaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pcc.DefaultGoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pccimporter.DefaultGoogleCalendarTasks2PccImporter2Factory;
+import at.silverstrike.pcc.impl.gtaskrelevance.DefaultIsGoogleTaskRelevantCalculatorFactory;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
 import at.silverstrike.pcc.impl.projectscheduler.DefaultProjectSchedulerFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
@@ -67,6 +69,8 @@ class InjectorModule extends AbstractModule {
         bind(TaskJuggler3Exporter.class).toInstance(getTaskJuggler3Exporter());
         bind(GoogleCalendarTasks2PccImporter2Factory.class).toInstance(
                 new DefaultGoogleCalendarTasks2PccImporter2Factory());
+        bind(IsGoogleTaskRelevantCalculatorFactory.class).toInstance(
+                new DefaultIsGoogleTaskRelevantCalculatorFactory());
     }
 
     private TaskJuggler3Exporter getTaskJuggler3Exporter() {
