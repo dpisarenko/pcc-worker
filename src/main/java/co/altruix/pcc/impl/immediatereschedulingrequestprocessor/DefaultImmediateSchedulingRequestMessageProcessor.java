@@ -150,7 +150,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         scheduler.setDirectory(System.getProperty("user.dir") + "/");
         scheduler.setInjector(injector);
         scheduler.setNow(now);
-
+        scheduler.setTaskJugglerPath("C:/Ruby191/bin/tj3.bat");
         try {
             scheduler.run();
         } catch (final InvalidDurationException exception) {
