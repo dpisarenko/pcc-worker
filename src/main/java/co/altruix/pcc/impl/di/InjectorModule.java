@@ -11,6 +11,7 @@
 
 package co.altruix.pcc.impl.di;
 
+import at.silverstrike.pcc.api.embeddedfilereading.EmbeddedFileReader;
 import at.silverstrike.pcc.api.export2tj3.TaskJuggler3Exporter;
 import at.silverstrike.pcc.api.export2tj3.TaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
@@ -22,6 +23,7 @@ import at.silverstrike.pcc.api.gtasktitleparser.GoogleTaskTitleParserFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 import at.silverstrike.pcc.api.projectscheduler.ProjectSchedulerFactory;
+import at.silverstrike.pcc.impl.embeddedfilereading.DefaultEmbeddedFileReaderFactory;
 import at.silverstrike.pcc.impl.export2tj3.DefaultTaskJuggler3ExporterFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pcc.DefaultGoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.impl.gcaltasks2pccimporter.DefaultGoogleCalendarTasks2PccImporter2Factory;
@@ -83,6 +85,8 @@ class InjectorModule extends AbstractModule {
                 new DefaultGoogleTask2PccTaskConverterFactory());
         bind(GoogleTaskTitleParserFactory.class).toInstance(
                 new DefaultGoogleTaskTitleParserFactory());
+        bind(EmbeddedFileReader.class).toInstance(
+                new DefaultEmbeddedFileReaderFactory().create());
     }
 
     private TaskJuggler3Exporter getTaskJuggler3Exporter() {
