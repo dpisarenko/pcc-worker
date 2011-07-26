@@ -11,9 +11,15 @@
 
 package co.altruix.pcc;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import javax.jms.Connection;
 import javax.jms.Session;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +43,28 @@ public class PccWorkerApp {
             .getLogger(PccWorkerApp.class);
 
     void run() throws PccException {
+        final Properties config = new Properties();
+
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(new File("conf.properties"));
+            config.load(fileInputStream);
+        } catch (final IOException exception) {
+            LOGGER.error("", exception);
+        } finally {
+            IOUtils.closeQuietly(fileInputStream);
+        }
+
+        LOGGER.info("tj3Path: {}", config.getProperty("tj3Path"));
+        
         final DefaultPccWorkerInjectorFactory injectorFactory =
                 new DefaultPccWorkerInjectorFactory();
         final Injector injector = injectorFactory.createInjector();
 
         final Persistence persistence = injector.getInstance(Persistence.class);
-        
+
         persistence.openSession();
-        
+
         final MqInfrastructureInitializer mqInitializer = initMq(injector);
 
         final Session session = mqInitializer.getSession();
@@ -124,7 +144,7 @@ public class PccWorkerApp {
 
     public static void main(String[] args) throws PccException {
         final PccWorkerApp app = new PccWorkerApp();
-        
+
         app.run();
     }
 }
