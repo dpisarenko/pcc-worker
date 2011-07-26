@@ -236,6 +236,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                     calendarService.getFeed(pccCalendarUrl,
                             CalendarEventFeed.class);
             for (final CalendarEventEntry curEvent : pccEventFeed.getEntries()) {
+                LOGGER.debug("Deleting event ''", curEvent);
                 curEvent.delete();
             }
 
