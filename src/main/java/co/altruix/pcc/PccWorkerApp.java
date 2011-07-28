@@ -156,8 +156,7 @@ public final class PccWorkerApp {
         hook.setConnection(aConnection);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run()
-            {
+            public void run() {
                 try {
                     hook.run();
                 } catch (final PccException exception) {
