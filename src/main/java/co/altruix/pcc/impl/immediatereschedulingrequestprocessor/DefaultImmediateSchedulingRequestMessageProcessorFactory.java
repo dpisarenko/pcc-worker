@@ -13,8 +13,10 @@ package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
 import java.util.Properties;
 
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessorFactory;
 
 /**
  * @author DP118M
