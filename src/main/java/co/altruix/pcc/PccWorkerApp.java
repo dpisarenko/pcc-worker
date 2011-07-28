@@ -80,7 +80,7 @@ public final class PccWorkerApp {
         web2workerQueue.setSession(session);
         web2workerQueue.init();
 
-        final Dispatcher dispatcher = getDispatcher(injector, config);
+        final Dispatcher dispatcher = getDispatcher(injector);
 
         dispatcher.addChannel(web2workerQueue);
 
@@ -122,8 +122,7 @@ public final class PccWorkerApp {
         return config;
     }
 
-    private Dispatcher getDispatcher(final Injector aInjector,
-            final Properties aConfiguration) {
+    private Dispatcher getDispatcher(final Injector aInjector) {
         final DispatcherFactory factory =
                 aInjector.getInstance(DispatcherFactory.class);
         final Dispatcher dispatcher = factory.create();
