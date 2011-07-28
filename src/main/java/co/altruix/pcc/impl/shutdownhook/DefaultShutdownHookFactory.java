@@ -16,9 +16,9 @@ import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 
 /**
  * @author DP118M
- *
+ * 
  */
-public class DefaultShutdownHookFactory implements ShutdownHookFactory {
+public final class DefaultShutdownHookFactory implements ShutdownHookFactory {
 
     public ShutdownHook create() {
         return new DefaultShutdownHook();

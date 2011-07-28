@@ -62,7 +62,7 @@ import com.google.inject.AbstractModule;
  */
 class InjectorModule extends AbstractModule {
     private Properties configuration;
-    
+
     public InjectorModule(final Properties aConfiguration) {
         this.configuration = aConfiguration;
     }
@@ -73,7 +73,8 @@ class InjectorModule extends AbstractModule {
                 .toInstance(new DefaultDispatcherFactory());
         bind(ImmediateSchedulingRequestMessageProcessorFactory.class)
                 .toInstance(
-                        new DefaultImmediateSchedulingRequestMessageProcessorFactory(this.configuration));
+                        new DefaultImmediateSchedulingRequestMessageProcessorFactory(
+                                this.configuration));
         bind(MessageProcessorSelectorFactory.class).toInstance(
                 new DefaultMessageProcessorSelectorFactory());
         bind(MqInfrastructureInitializerFactory.class).toInstance(

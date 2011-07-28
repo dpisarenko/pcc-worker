@@ -33,14 +33,19 @@ public final class DefaultImmediateSchedulingRequestMessageProcessorFactory
     public ImmediateSchedulingRequestMessageProcessor create() {
         final ImmediateSchedulingRequestMessageProcessor returnValue =
                 new DefaultImmediateSchedulingRequestMessageProcessor();
-        
-        returnValue.setAllCalendarsFeedUrl(this.configuration.getProperty("allCalendarsFeedUrl"));
-        returnValue.setCalendarScope(this.configuration.getProperty("calendarScope"));
+
+        returnValue.setAllCalendarsFeedUrl(this.configuration
+                .getProperty("allCalendarsFeedUrl"));
+        returnValue.setCalendarScope(this.configuration
+                .getProperty("calendarScope"));
         returnValue.setClientId(this.configuration.getProperty("clientId"));
-        returnValue.setClientSecret(this.configuration.getProperty("clientSecret"));
-        returnValue.setConsumerKey(this.configuration.getProperty("consumerKey"));
-        returnValue.setTaskJugglerPath(this.configuration.getProperty("taskJugglerPath"));
-        
+        returnValue.setClientSecret(this.configuration
+                .getProperty("clientSecret"));
+        returnValue.setConsumerKey(this.configuration
+                .getProperty("consumerKey"));
+        returnValue.setTaskJugglerPath(this.configuration
+                .getProperty("taskJugglerPath"));
+
         return returnValue;
     }
 

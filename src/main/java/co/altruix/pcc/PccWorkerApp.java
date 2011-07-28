@@ -44,7 +44,11 @@ public final class PccWorkerApp {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PccWorkerApp.class);
 
-    private final void run() throws PccException {
+    private PccWorkerApp() {
+
+    }
+
+    private void run() throws PccException {
         final Properties config = readConfig();
 
         LOGGER.info("tj3Path: {}", config.getProperty("tj3Path"));
@@ -151,8 +155,7 @@ public final class PccWorkerApp {
         hook.setSession(aSession);
         hook.setConnection(aConnection);
 
-        Runtime.getRuntime().addShutdownHook(new Thread()
-        {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run()
             {
                 try {

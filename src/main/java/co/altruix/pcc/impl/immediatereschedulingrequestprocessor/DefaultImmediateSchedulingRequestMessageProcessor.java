@@ -57,7 +57,8 @@ import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -119,9 +120,6 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         final ProjectScheduler scheduler =
                 injector.getInstance(ProjectScheduler.class);
 
-        final Persistence persistence =
-                this.injector.getInstance(Persistence.class);
-
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
 
         final List<SchedulingObject> schedulingObjectsToExport =
@@ -171,7 +169,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             final PrivateKey privKey = getPrivateKey();
             final OAuthRsaSha1Signer signer = new OAuthRsaSha1Signer(privKey);
 
-            GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
+            final GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
             oauthParameters.setOAuthConsumerKey(consumerKey);
             oauthParameters.setScope(calendarScope);
 

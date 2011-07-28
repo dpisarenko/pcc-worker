@@ -19,6 +19,6 @@ import ru.altruix.commons.api.di.InjectorFactory;
  * @author DP118M
  *
  */
-public interface PccWorkerInjectorFactory extends InjectorFactory{
+public interface PccWorkerInjectorFactory extends InjectorFactory {
     void setConfiguration(final Properties aConfiguration);
 }

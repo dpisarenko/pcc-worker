@@ -15,8 +15,10 @@ import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
