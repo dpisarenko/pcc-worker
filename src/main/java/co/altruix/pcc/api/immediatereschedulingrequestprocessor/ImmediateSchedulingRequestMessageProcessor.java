@@ -19,5 +19,15 @@ import co.altruix.pcc.api.messageprocessor.MessageProcessor;
  */
 public interface ImmediateSchedulingRequestMessageProcessor extends
         MessageProcessor {
+    void setTaskJugglerPath(final String aTaskJugglerPath);
 
+    void setClientSecret(final String aClientSecret);
+
+    void setClientId(final String aClientId);
+
+    void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl);
+
+    void setCalendarScope(final String aCalendarScope);
+
+    void setConsumerKey(final String aConsumerKey);
 }

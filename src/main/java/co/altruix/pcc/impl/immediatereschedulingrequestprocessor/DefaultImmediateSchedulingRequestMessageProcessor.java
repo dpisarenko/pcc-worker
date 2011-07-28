@@ -66,14 +66,8 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
  */
 class DefaultImmediateSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
-    private static final String PCCHQ_COM = "pcchq.com";
-
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
-
-    private static final String CLIENT_ID =
-            "294496059397.apps.googleusercontent.com";
-    private static final String CLIENT_SECRET = "J1JRmoTA-EmOjTwKkW-eLHLY";
 
     private static final int ONE_MONTH = 1;
 
@@ -83,6 +77,18 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
     private Injector injector;
 
+    private String taskJugglerPath;
+
+    private String consumerKey;
+
+    private String calendarScope;
+
+    private String allCalendarsFeedUrl;
+
+    private String clientId;
+
+    private String clientSecret;
+    
     public void setMessage(final PccMessage aMessage) {
         this.message = aMessage;
     }
@@ -150,7 +156,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         scheduler.setDirectory(System.getProperty("user.dir") + "/");
         scheduler.setInjector(injector);
         scheduler.setNow(now);
-        scheduler.setTaskJugglerPath("C:/Ruby191/bin/tj3.bat");
+        scheduler.setTaskJugglerPath(taskJugglerPath);
         try {
             scheduler.run();
         } catch (final InvalidDurationException exception) {
@@ -166,9 +172,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             final OAuthRsaSha1Signer signer = new OAuthRsaSha1Signer(privKey);
 
             GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
-            oauthParameters.setOAuthConsumerKey(PCCHQ_COM);
-
-            oauthParameters.setScope("https://www.google.com/calendar/feeds");
+            oauthParameters.setOAuthConsumerKey(consumerKey);
+            oauthParameters.setScope(calendarScope);
 
             oauthParameters.setOAuthVerifier(aUser
                     .getGoogleCalendarOAuthVerifier()); // Verifier from the
@@ -185,14 +190,14 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                                                            // part
 
             final CalendarService calendarService =
-                    new CalendarService(PCCHQ_COM);
+                    new CalendarService(consumerKey);
 
             calendarService
                     .setOAuthCredentials(oauthParameters, signer);
 
             final URL feedUrl =
                     new URL(
-                            "https://www.google.com/calendar/feeds/default/allcalendars/full");
+                            allCalendarsFeedUrl);
             final CalendarFeed resultFeed =
                     calendarService.getFeed(feedUrl, CalendarFeed.class);
 
@@ -310,20 +315,20 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                     new GoogleAccessTokenRequest.GoogleRefreshTokenGrant(
                             httpTransport,
                             jsonFactory,
-                            CLIENT_ID, CLIENT_SECRET,
+                            clientId, clientSecret,
                             googleTasksRefreshToken)
                             .execute();
 
             final GoogleAccessProtectedResource accessProtectedResource =
                     new GoogleAccessProtectedResource(
                             response.accessToken, httpTransport, jsonFactory,
-                            CLIENT_ID, CLIENT_SECRET,
+                            clientId, clientSecret,
                             googleTasksRefreshToken);
 
             final Tasks service =
                     new Tasks(httpTransport, accessProtectedResource,
                             jsonFactory);
-            service.setApplicationName(PCCHQ_COM);
+            service.setApplicationName(this.consumerKey);
 
             final GoogleCalendarTasks2PccImporterFactory importerFactory =
                     this.injector
@@ -351,4 +356,32 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         }
     }
 
+    public void setTaskJugglerPath(final String aTaskJugglerPath) {
+        this.taskJugglerPath = aTaskJugglerPath;
+    }
+
+    @Override
+    public void setConsumerKey(final String aConsumerKey) {
+        this.consumerKey = aConsumerKey;
+    }
+
+    @Override
+    public void setCalendarScope(final String aCalendarScope) {
+        this.calendarScope = aCalendarScope;
+    }
+
+    @Override
+    public void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
+        this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
+    }
+
+    @Override
+    public void setClientId(final String aClientId) {
+        this.clientId = aClientId;
+    }
+
+    @Override
+    public void setClientSecret(final String aClientSecret) {
+        this.clientSecret = aClientSecret;
+    }
 }

@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.api.di;
 
+import java.util.Properties;
+
 import ru.altruix.commons.api.di.InjectorFactory;
 
 /**
@@ -18,5 +20,5 @@ import ru.altruix.commons.api.di.InjectorFactory;
  *
  */
 public interface PccWorkerInjectorFactory extends InjectorFactory{
-
+    void setConfiguration(final Properties aConfiguration);
 }

@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.api.dispatcher;
 
+import java.util.Properties;
+
 import ru.altruix.commons.api.conventions.SingleActivityModule;
 import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
 import co.altruix.pcc.api.channels.PccChannel;

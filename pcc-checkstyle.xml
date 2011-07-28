@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<!--
+  This file is part of Project Control Center (PCC).
+  
+  PCC (Project Control Center) project is intellectual property of 
+  Dmitri Anatol'evich Pisarenko.
+  
+  Copyright 2010, 2011 Dmitri Anatol'evich Pisarenko
+  All rights reserved
+-->
+
+<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.1//EN" "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
+
+<module name="Checker">
+	<module name="TreeWalker">		
+		<module name="JavadocMethod">
+			<property name="severity" value="ignore" />
+			<property name="logLoadErrors" value="true" />
+			<property name="suppressLoadErrors" value="true" />
+		</module>
+		<module name="JavadocType">
+			<property name="severity" value="ignore" />
+		</module>
+		<module name="JavadocVariable">
+			<property name="severity" value="ignore" />
+		</module>
+		<module name="JavadocStyle">
+			<property name="severity" value="ignore" />
+		</module>
+		<module name="ConstantName" />
+		<module name="LocalFinalVariableName" />
+		<module name="LocalVariableName" />
+		<module name="MemberName" />
+		<module name="MethodName" />
+		<module name="PackageName" />
+		<module name="ParameterName">
+			<property name="format" value="^a[A-Z][a-zA-Z0-9]*$" />
+		</module>
+		<module name="StaticVariableName" />
+		<module name="TypeName" />
+		<module name="AvoidStarImport" />
+		<module name="IllegalImport" />
+		<module name="RedundantImport" />
+		<module name="UnusedImports" />
+		<module name="LineLength">
+			<property name="max" value="100" />
+		</module>
+		<module name="MethodLength" />
+		<module name="ParameterNumber" />
+		<module name="EmptyForIteratorPad" />
+		<module name="MethodParamPad" />
+		<module name="NoWhitespaceAfter">
+			<property name="tokens"
+				value="BNOT,DEC,DOT,INC,LNOT,UNARY_MINUS,UNARY_PLUS" />
+		</module>
+		<module name="NoWhitespaceBefore" />
+		<module name="OperatorWrap" />
+		<module name="ParenPad" />
+		<module name="TypecastParenPad" />
+		<module name="WhitespaceAfter" />
+		<module name="WhitespaceAround">
+			<property name="tokens"
+				value="ASSIGN,BAND,BAND_ASSIGN,BOR,BOR_ASSIGN,BSR,BSR_ASSIGN,BXOR,BXOR_ASSIGN,COLON,DIV,DIV_ASSIGN,EQUAL,GE,GT,LAND,LCURLY,LE,LITERAL_ASSERT,LITERAL_CATCH,LITERAL_DO,LITERAL_ELSE,LITERAL_FINALLY,LITERAL_FOR,LITERAL_IF,LITERAL_RETURN,LITERAL_SYNCHRONIZED,LITERAL_TRY,LITERAL_WHILE,LOR,LT,MINUS,MINUS_ASSIGN,MOD,MOD_ASSIGN,NOT_EQUAL,PLUS,PLUS_ASSIGN,QUESTION,RCURLY,SL,SLIST,SL_ASSIGN,SR,SR_ASSIGN,STAR,STAR_ASSIGN,LITERAL_ASSERT,TYPE_EXTENSION_AND,WILDCARD_TYPE" />
+		</module>
+		<module name="ModifierOrder" />
+		<module name="RedundantModifier" />
+		<module name="AvoidNestedBlocks" />
+		<module name="EmptyBlock" />
+		<module name="LeftCurly" />
+		<module name="NeedBraces" />
+		<module name="RightCurly" />
+		<module name="AvoidInlineConditionals" />
+		<module name="DoubleCheckedLocking" />
+		<module name="EmptyStatement" />
+		<module name="EqualsHashCode" />
+		<module name="HiddenField" />
+		<module name="IllegalInstantiation" />
+		<module name="InnerAssignment" />
+		<module name="MagicNumber" />
+		<module name="MissingSwitchDefault" />
+		<module name="RedundantThrows">
+			<property name="logLoadErrors" value="true" />
+			<property name="suppressLoadErrors" value="true" />
+		</module>
+		<module name="SimplifyBooleanExpression" />
+		<module name="SimplifyBooleanReturn" />
+		<module name="DesignForExtension" />
+		<module name="FinalClass" />
+		<module name="HideUtilityClassConstructor" />
+		<module name="InterfaceIsType" />
+		<module name="VisibilityModifier" />
+		<module name="ArrayTypeStyle" />
+		<module name="FinalParameters">
+			<property name="tokens" value="CTOR_DEF, LITERAL_CATCH, METHOD_DEF" />
+		</module>
+		<module name="TodoComment">
+			<property name="severity" value="ignore" />
+		</module>
+		<module name="UpperEll" />
+		<module name="FinalLocalVariable">
+			<property name="tokens" value="VARIABLE_DEF,PARAMETER_DEF"/>
+		</module>		
+	</module> <!-- TreeWalker -->
+	<module name="NewlineAtEndOfFile" />
+	<module name="Header">
+		<property name="headerFile" value="checkstyle.java.header" />
+		<property name="fileExtensions" value="java" />
+	</module>
+	<module name="FileLength">
+		<property name="max" value="2000" />
+	</module>
+	<module name="Translation" />
+</module>

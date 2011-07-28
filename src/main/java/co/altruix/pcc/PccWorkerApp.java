@@ -38,34 +38,28 @@ import co.altruix.pcc.api.shutdownhook.ShutdownHook;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
-public class PccWorkerApp {
+public final class PccWorkerApp {
+    private static final int HALF_SECOND = 500;
+    private static final String CONFIG_FILE = "conf.properties";
     private static final Logger LOGGER = LoggerFactory
             .getLogger(PccWorkerApp.class);
 
-    void run() throws PccException {
-        final Properties config = new Properties();
-
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(new File("conf.properties"));
-            config.load(fileInputStream);
-        } catch (final IOException exception) {
-            LOGGER.error("", exception);
-        } finally {
-            IOUtils.closeQuietly(fileInputStream);
-        }
+    private final void run() throws PccException {
+        final Properties config = readConfig();
 
         LOGGER.info("tj3Path: {}", config.getProperty("tj3Path"));
-        
-        final DefaultPccWorkerInjectorFactory injectorFactory =
-                new DefaultPccWorkerInjectorFactory();
-        final Injector injector = injectorFactory.createInjector();
+
+        final Injector injector = initDependencyInjector(config);
 
         final Persistence persistence = injector.getInstance(Persistence.class);
-
         persistence.openSession();
 
-        final MqInfrastructureInitializer mqInitializer = initMq(injector);
+        final String brokerUrl = config.getProperty("brokerUrl");
+        final String username = config.getProperty("username");
+        final String password = config.getProperty("password");
+
+        final MqInfrastructureInitializer mqInitializer =
+                initMq(injector, brokerUrl, username, password);
 
         final Session session = mqInitializer.getSession();
 
@@ -76,11 +70,13 @@ public class PccWorkerApp {
                 injector.getInstance(QueueChannelFactory.class);
         final QueueChannel web2workerQueue = channelFactory.create();
 
-        web2workerQueue.setQueueName("PCC.WEB.WORKER");
+        final String web2workerQueueName =
+                config.getProperty("web2workerQueueName");
+        web2workerQueue.setQueueName(web2workerQueueName);
         web2workerQueue.setSession(session);
         web2workerQueue.init();
 
-        final Dispatcher dispatcher = getDispatcher(injector);
+        final Dispatcher dispatcher = getDispatcher(injector, config);
 
         dispatcher.addChannel(web2workerQueue);
 
@@ -92,14 +88,38 @@ public class PccWorkerApp {
             }
 
             try {
-                Thread.sleep(500);
+                Thread.sleep(HALF_SECOND);
             } catch (final InterruptedException exception) {
                 LOGGER.error("", exception);
             }
         }
     }
 
-    private Dispatcher getDispatcher(final Injector aInjector) {
+    private Injector initDependencyInjector(final Properties aConfiguration) {
+        final DefaultPccWorkerInjectorFactory injectorFactory =
+                new DefaultPccWorkerInjectorFactory();
+        injectorFactory.setConfiguration(aConfiguration);
+        final Injector injector = injectorFactory.createInjector();
+        return injector;
+    }
+
+    private Properties readConfig() {
+        final Properties config = new Properties();
+
+        FileInputStream fileInputStream = null;
+        try {
+            fileInputStream = new FileInputStream(new File(CONFIG_FILE));
+            config.load(fileInputStream);
+        } catch (final IOException exception) {
+            LOGGER.error("", exception);
+        } finally {
+            IOUtils.closeQuietly(fileInputStream);
+        }
+        return config;
+    }
+
+    private Dispatcher getDispatcher(final Injector aInjector,
+            final Properties aConfiguration) {
         final DispatcherFactory factory =
                 aInjector.getInstance(DispatcherFactory.class);
         final Dispatcher dispatcher = factory.create();
@@ -107,23 +127,25 @@ public class PccWorkerApp {
         return dispatcher;
     }
 
-    private MqInfrastructureInitializer initMq(final Injector injector)
+    private MqInfrastructureInitializer initMq(final Injector aInjector,
+            final String aBrokerUrl, final String aUsername,
+            final String aPassword)
             throws PccException {
         final MqInfrastructureInitializerFactory factory =
-                injector.getInstance(MqInfrastructureInitializerFactory.class);
+                aInjector.getInstance(MqInfrastructureInitializerFactory.class);
         final MqInfrastructureInitializer mqInitializer = factory.create();
 
-        mqInitializer.setBrokerUrl("");
-        mqInitializer.setPassword("");
-        mqInitializer.setBrokerUrl("failover://tcp://localhost:61616");
+        mqInitializer.setUsername(aUsername);
+        mqInitializer.setPassword(aPassword);
+        mqInitializer.setBrokerUrl(aBrokerUrl);
         mqInitializer.run();
         return mqInitializer;
     }
 
-    private void setupShutdownHook(final Injector injector,
+    private void setupShutdownHook(final Injector aInjector,
             final Session aSession, final Connection aConnection) {
         final ShutdownHookFactory factory =
-                injector.getInstance(ShutdownHookFactory.class);
+                aInjector.getInstance(ShutdownHookFactory.class);
         final ShutdownHook hook = factory.create();
 
         hook.setSession(aSession);
@@ -142,7 +164,7 @@ public class PccWorkerApp {
         });
     }
 
-    public static void main(String[] args) throws PccException {
+    public static void main(final String[] aArgs) throws PccException {
         final PccWorkerApp app = new PccWorkerApp();
 
         app.run();

@@ -37,7 +37,7 @@ class DefaultDispatcher implements Dispatcher {
 
     private List<PccChannel> channels = new LinkedList<PccChannel>();
     private MessageProcessorSelector selector;
-
+    
     public void run() throws PccException {
         for (final PccChannel curChannel : this.channels) {
             if (curChannel.newMessagesAvailable()) {
@@ -78,6 +78,5 @@ class DefaultDispatcher implements Dispatcher {
             this.selector = factory.create();
             this.selector.setInjector(aInjector);
         }
-    }
-
+    }    
 }

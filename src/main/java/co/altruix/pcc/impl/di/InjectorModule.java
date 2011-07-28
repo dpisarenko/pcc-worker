@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.impl.di;
 
+import java.util.Properties;
+
 import at.silverstrike.pcc.api.embeddedfilereading.EmbeddedFileReader;
 import at.silverstrike.pcc.api.export2tj3.TaskJuggler3Exporter;
 import at.silverstrike.pcc.api.export2tj3.TaskJuggler3ExporterFactory;
@@ -59,6 +61,11 @@ import com.google.inject.AbstractModule;
  * 
  */
 class InjectorModule extends AbstractModule {
+    private Properties configuration;
+    
+    public InjectorModule(final Properties aConfiguration) {
+        this.configuration = aConfiguration;
+    }
 
     @Override
     protected void configure() {
@@ -66,7 +73,7 @@ class InjectorModule extends AbstractModule {
                 .toInstance(new DefaultDispatcherFactory());
         bind(ImmediateSchedulingRequestMessageProcessorFactory.class)
                 .toInstance(
-                        new DefaultImmediateSchedulingRequestMessageProcessorFactory());
+                        new DefaultImmediateSchedulingRequestMessageProcessorFactory(this.configuration));
         bind(MessageProcessorSelectorFactory.class).toInstance(
                 new DefaultMessageProcessorSelectorFactory());
         bind(MqInfrastructureInitializerFactory.class).toInstance(
