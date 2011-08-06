@@ -36,6 +36,7 @@ import co.altruix.pcc.api.queuechannel.QueueChannel;
 import co.altruix.pcc.api.queuechannel.QueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHook;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
+import co.altruix.pcc.api.writeonlyqueuechannel.WriteOnlyQueueChannelFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
 public final class PccWorkerApp {
@@ -70,15 +71,11 @@ public final class PccWorkerApp {
         setupShutdownHook(injector, session,
                 mqInitializer.getConnection());
 
-        final QueueChannelFactory channelFactory =
-                injector.getInstance(QueueChannelFactory.class);
-        final QueueChannel web2workerQueue = channelFactory.create();
+        final QueueChannel web2workerQueue =
+                getWeb2WorkerQueue(config, injector, session);
 
-        final String web2workerQueueName =
-                config.getProperty("web2workerQueueName");
-        web2workerQueue.setQueueName(web2workerQueueName);
-        web2workerQueue.setSession(session);
-        web2workerQueue.init();
+        final QueueChannel worker2testerQueue =
+                getWorker2TesterQueue(config, injector, session);
 
         final Dispatcher dispatcher = getDispatcher(injector);
 
@@ -97,6 +94,28 @@ public final class PccWorkerApp {
                 LOGGER.error("", exception);
             }
         }
+    }
+
+    private QueueChannel getWorker2TesterQueue(final Properties aConfig,
+            final Injector aInjector, final Session aSession) {
+        final WriteOnlyQueueChannelFactory factory =
+                aInjector.getInstance(WriteOnlyQueueChannelFactory.class);
+
+        return null;
+    }
+
+    private QueueChannel getWeb2WorkerQueue(final Properties config,
+            final Injector injector, final Session session) throws PccException {
+        final QueueChannelFactory channelFactory =
+                injector.getInstance(QueueChannelFactory.class);
+        final QueueChannel web2workerQueue = channelFactory.create();
+
+        final String web2workerQueueName =
+                config.getProperty("web2workerQueueName");
+        web2workerQueue.setQueueName(web2workerQueueName);
+        web2workerQueue.setSession(session);
+        web2workerQueue.init();
+        return web2workerQueue;
     }
 
     private Injector initDependencyInjector(final Properties aConfiguration) {
