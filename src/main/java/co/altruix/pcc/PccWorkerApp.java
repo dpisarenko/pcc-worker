@@ -11,6 +11,10 @@
 
 package co.altruix.pcc;
 
+import static co.altruix.pcc.api.immediatereschedulingrequestprocessor.
+    ImmediateSchedulingRequestMessageProcessor.
+        CONFIRMATION_MESSAGE_CHANNEL_NAME;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -54,7 +58,7 @@ public final class PccWorkerApp {
     private void run() throws PccException {
         final Properties config = readConfig();
 
-        LOGGER.info("tj3Path: {}", config.getProperty("tj3Path"));
+        LOGGER.info("tj3Path: {}", config.getProperty("taskJugglerPath"));
 
         final Injector injector = initDependencyInjector(config);
 
@@ -112,6 +116,7 @@ public final class PccWorkerApp {
 
         channel.setQueueName(queueName);
         channel.setSession(aSession);
+        channel.setChannelName(CONFIRMATION_MESSAGE_CHANNEL_NAME);
         channel.init();
 
         return channel;
