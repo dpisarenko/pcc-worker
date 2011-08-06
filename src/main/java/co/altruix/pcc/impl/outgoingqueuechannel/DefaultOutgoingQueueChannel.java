@@ -80,4 +80,9 @@ class DefaultOutgoingQueueChannel implements OutgoingQueueChannel {
     public String getChannelName() {
         return this.channelName;
     }
+
+    @Override
+    public Session getSession() {
+        return this.session;
+    }
 }
