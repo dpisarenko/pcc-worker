@@ -43,6 +43,8 @@ class DefaultDispatcher implements Dispatcher {
     private MessageProcessorSelector selector;
 
     public void run() throws PccException {
+        this.selector.setWorker2TesterChannel(worker2testerChannel);
+        
         for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
             if (curChannel.newMessagesAvailable()) {
                 final PccMessage curMessage = curChannel.getNextMessage();
