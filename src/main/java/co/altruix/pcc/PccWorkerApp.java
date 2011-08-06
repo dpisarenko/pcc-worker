@@ -28,15 +28,17 @@ import at.silverstrike.pcc.api.persistence.Persistence;
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
+import co.altruix.pcc.api.channels.WorkerChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
+import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannel;
+import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
-import co.altruix.pcc.api.queuechannel.QueueChannel;
-import co.altruix.pcc.api.queuechannel.QueueChannelFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHook;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
-import co.altruix.pcc.api.writeonlyqueuechannel.WriteOnlyQueueChannelFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
 public final class PccWorkerApp {
@@ -68,18 +70,20 @@ public final class PccWorkerApp {
 
         final Session session = mqInitializer.getSession();
 
-        setupShutdownHook(injector, session,
-                mqInitializer.getConnection());
-
-        final QueueChannel web2workerQueue =
+        final IncomingQueueChannel web2workerQueue =
                 getWeb2WorkerQueue(config, injector, session);
 
-        final QueueChannel worker2testerQueue =
+        final OutgoingQueueChannel worker2testerQueue =
                 getWorker2TesterQueue(config, injector, session);
 
         final Dispatcher dispatcher = getDispatcher(injector);
 
-        dispatcher.addChannel(web2workerQueue);
+        dispatcher.addIncomingChannel(web2workerQueue);
+        dispatcher.addOutgoingChannel(worker2testerQueue);
+
+        setupShutdownHook(injector, session,
+                mqInitializer.getConnection(), new WorkerChannel[] {
+                        web2workerQueue, worker2testerQueue });
 
         while (true) {
             try {
@@ -96,19 +100,28 @@ public final class PccWorkerApp {
         }
     }
 
-    private QueueChannel getWorker2TesterQueue(final Properties aConfig,
-            final Injector aInjector, final Session aSession) {
-        final WriteOnlyQueueChannelFactory factory =
-                aInjector.getInstance(WriteOnlyQueueChannelFactory.class);
+    private OutgoingQueueChannel getWorker2TesterQueue(
+            final Properties aConfig,
+            final Injector aInjector, final Session aSession)
+            throws PccException {
+        final OutgoingQueueChannelFactory factory =
+                aInjector.getInstance(OutgoingQueueChannelFactory.class);
+        final OutgoingQueueChannel channel = factory.create();
 
-        return null;
+        final String queueName = aConfig.getProperty("worker2TesterQueueName");
+
+        channel.setQueueName(queueName);
+        channel.setSession(aSession);
+        channel.init();
+
+        return channel;
     }
 
-    private QueueChannel getWeb2WorkerQueue(final Properties config,
+    private IncomingQueueChannel getWeb2WorkerQueue(final Properties config,
             final Injector injector, final Session session) throws PccException {
-        final QueueChannelFactory channelFactory =
-                injector.getInstance(QueueChannelFactory.class);
-        final QueueChannel web2workerQueue = channelFactory.create();
+        final IncomingQueueChannelFactory channelFactory =
+                injector.getInstance(IncomingQueueChannelFactory.class);
+        final IncomingQueueChannel web2workerQueue = channelFactory.create();
 
         final String web2workerQueueName =
                 config.getProperty("web2workerQueueName");
@@ -165,13 +178,18 @@ public final class PccWorkerApp {
     }
 
     private void setupShutdownHook(final Injector aInjector,
-            final Session aSession, final Connection aConnection) {
+            final Session aSession, final Connection aConnection,
+            final WorkerChannel[] aChannels) {
         final ShutdownHookFactory factory =
                 aInjector.getInstance(ShutdownHookFactory.class);
         final ShutdownHook hook = factory.create();
 
         hook.setSession(aSession);
         hook.setConnection(aConnection);
+
+        for (final WorkerChannel curChannel : aChannels) {
+            hook.addChannel(curChannel);
+        }
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {

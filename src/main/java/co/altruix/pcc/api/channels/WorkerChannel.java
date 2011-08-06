@@ -11,12 +11,16 @@
 
 package co.altruix.pcc.api.channels;
 
-import ru.altruix.commons.api.di.PccException;
-import co.altruix.pcc.api.cdm.PccMessage;
+import javax.jms.Session;
 
-public interface PccChannel {
+import ru.altruix.commons.api.di.PccException;
+
+/**
+ * @author DP118M
+ *
+ */
+public interface WorkerChannel {
     void init() throws PccException;
-    boolean newMessagesAvailable();
-    PccMessage getNextMessage();
     void close() throws PccException;
+    void setSession(final Session aSession);
 }

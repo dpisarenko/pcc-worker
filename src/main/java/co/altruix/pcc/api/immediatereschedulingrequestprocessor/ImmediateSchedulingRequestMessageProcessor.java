@@ -12,6 +12,7 @@
 package co.altruix.pcc.api.immediatereschedulingrequestprocessor;
 
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 
 /**
  * @author DP118M
@@ -19,6 +20,8 @@ import co.altruix.pcc.api.messageprocessor.MessageProcessor;
  */
 public interface ImmediateSchedulingRequestMessageProcessor extends
         MessageProcessor {
+    final String CONFIRMATION_MESSAGE_CHANNEL_NAME = "PCC.WORKER.TESTER";
+    
     void setTaskJugglerPath(final String aTaskJugglerPath);
 
     void setClientSecret(final String aClientSecret);
@@ -30,4 +33,6 @@ public interface ImmediateSchedulingRequestMessageProcessor extends
     void setCalendarScope(final String aCalendarScope);
 
     void setConsumerKey(final String aConsumerKey);
+    
+    void setWorker2TesterChannel(final OutgoingQueueChannel aChannel);
 }

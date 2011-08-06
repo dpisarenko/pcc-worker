@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.pcc.api.writeonlyqueuechannel;
+package co.altruix.pcc.api.channels;
 
 import javax.jms.Message;
 import javax.jms.Session;
@@ -20,10 +20,7 @@ import ru.altruix.commons.api.di.PccException;
  * @author DP118M
  *
  */
-public interface WriteOnlyQueueChannel {
-    void init() throws PccException;
-    void close() throws PccException;
-    void setQueueName(final String aQueueName);
-    void setSession(final Session aSession);
+public interface OutgoingWorkerChannel extends WorkerChannel {
+    Session getSession();
     void send(final Message aMessage) throws PccException;
 }

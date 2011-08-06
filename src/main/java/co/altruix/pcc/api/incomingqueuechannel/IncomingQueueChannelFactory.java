@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.pcc.api.queuechannel;
+package co.altruix.pcc.api.incomingqueuechannel;
 
 import ru.altruix.commons.api.conventions.Factory;
 
@@ -17,6 +17,6 @@ import ru.altruix.commons.api.conventions.Factory;
  * @author DP118M
  *
  */
-public interface QueueChannelFactory extends Factory<QueueChannel> {
+public interface IncomingQueueChannelFactory extends Factory<IncomingQueueChannel> {
 
 }

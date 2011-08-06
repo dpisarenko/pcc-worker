@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import ru.altruix.commons.api.di.InjectorFactory;
 
-import co.altruix.pcc.api.writeonlyqueuechannel.WriteOnlyQueueChannelFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
 import com.google.inject.ConfigurationException;
@@ -37,7 +37,7 @@ public class TestDefaultInjectorFactory {
         Assert.assertNotNull(injector);
 
         try {
-            injector.getInstance(WriteOnlyQueueChannelFactory.class);
+            injector.getInstance(OutgoingQueueChannelFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
         }

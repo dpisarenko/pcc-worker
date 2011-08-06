@@ -14,7 +14,7 @@ package co.altruix.pcc.api.shutdownhook;
 import javax.jms.Connection;
 import javax.jms.Session;
 
-import co.altruix.pcc.api.channels.PccChannel;
+import co.altruix.pcc.api.channels.WorkerChannel;
 
 import ru.altruix.commons.api.conventions.SingleActivityModule;
 
@@ -24,6 +24,6 @@ import ru.altruix.commons.api.conventions.SingleActivityModule;
  */
 public interface ShutdownHook extends SingleActivityModule {
     void setConnection(final Connection aConnection);
-    void addChannel(final PccChannel aChannel);
+    void addChannel(final WorkerChannel aChannel);
     void setSession(final Session aSession);
 }

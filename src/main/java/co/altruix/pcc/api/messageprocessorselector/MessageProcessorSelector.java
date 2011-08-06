@@ -15,6 +15,7 @@ import ru.altruix.commons.api.conventions.SingleActivityModule;
 import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
 import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 
 /**
  * @author DP118M
@@ -25,4 +26,6 @@ public interface MessageProcessorSelector extends SingleActivityModule,
     void setMessage(final PccMessage aMessage);
 
     MessageProcessor getMessageProcessor();
+    
+    void setWorker2TesterChannel(final OutgoingQueueChannel aChannel);
 }

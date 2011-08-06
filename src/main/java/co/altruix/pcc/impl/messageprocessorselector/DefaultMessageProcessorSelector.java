@@ -21,6 +21,7 @@ import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
     ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -30,12 +31,15 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 class DefaultMessageProcessorSelector implements MessageProcessorSelector {
     private PccMessage message;
     private MessageProcessor processor;
+    private OutgoingQueueChannel channel;
     private ImmediateSchedulingRequestMessageProcessor immediateSchedulingRequestMessageProcessor;
 
     public void run() throws PccException {
+        
         if (this.message == null) {
             this.processor = null;
         } else if (this.message instanceof DefaultImmediateSchedulingRequest) {
+            
             this.processor = this.immediateSchedulingRequestMessageProcessor;
         } else {
             this.processor = null;
@@ -58,5 +62,10 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
             immediateSchedulingRequestMessageProcessor = factory.create();
             immediateSchedulingRequestMessageProcessor.setInjector(aInjector);
         }
+    }
+    
+    @Override
+    public void setWorker2TesterChannel(final OutgoingQueueChannel aChannel) {
+        this.channel = aChannel;
     }
 }

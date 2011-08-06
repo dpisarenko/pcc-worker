@@ -21,11 +21,14 @@ import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
-import co.altruix.pcc.api.channels.PccChannel;
+import co.altruix.pcc.api.channels.IncomingWorkerChannel;
+import co.altruix.pcc.api.channels.OutgoingWorkerChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 
 /**
  * @author DP118M
@@ -34,12 +37,13 @@ import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFacto
 class DefaultDispatcher implements Dispatcher {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultDispatcher.class);
-
-    private List<PccChannel> channels = new LinkedList<PccChannel>();
+    private List<IncomingWorkerChannel> incomingChannels =
+            new LinkedList<IncomingWorkerChannel>();
+    private OutgoingQueueChannel worker2testerChannel;
     private MessageProcessorSelector selector;
-    
+
     public void run() throws PccException {
-        for (final PccChannel curChannel : this.channels) {
+        for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
             if (curChannel.newMessagesAvailable()) {
                 final PccMessage curMessage = curChannel.getNextMessage();
 
@@ -66,8 +70,8 @@ class DefaultDispatcher implements Dispatcher {
         }
     }
 
-    public void addChannel(final PccChannel aChannel) {
-        this.channels.add(aChannel);
+    public void addIncomingChannel(final IncomingWorkerChannel aChannel) {
+        this.incomingChannels.add(aChannel);
     }
 
     public void setInjector(final Injector aInjector) {
@@ -78,5 +82,18 @@ class DefaultDispatcher implements Dispatcher {
             this.selector = factory.create();
             this.selector.setInjector(aInjector);
         }
-    }    
+    }
+    
+    @Override
+    public void addOutgoingChannel(final OutgoingWorkerChannel aChannel) {
+        if (aChannel instanceof OutgoingQueueChannel) {
+            final OutgoingQueueChannel queue = (OutgoingQueueChannel) aChannel;
+
+            if (ImmediateSchedulingRequestMessageProcessor.CONFIRMATION_MESSAGE_CHANNEL_NAME
+                    .equals(queue.getChannelName())) {
+                worker2testerChannel = queue;
+            }
+        }
+
+    }
 }

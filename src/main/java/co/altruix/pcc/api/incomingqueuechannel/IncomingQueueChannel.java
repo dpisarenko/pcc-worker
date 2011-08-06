@@ -9,17 +9,14 @@
  *
  **/
 
-package co.altruix.pcc.api.queuechannel;
+package co.altruix.pcc.api.incomingqueuechannel;
 
-import javax.jms.Session;
-
-import co.altruix.pcc.api.channels.PccChannel;
+import co.altruix.pcc.api.channels.IncomingWorkerChannel;
 
 /**
  * @author DP118M
  *
  */
-public interface QueueChannel extends PccChannel {
+public interface IncomingQueueChannel extends IncomingWorkerChannel {
     void setQueueName(final String aQueueName);
-    void setSession(final Session aSession);
 }

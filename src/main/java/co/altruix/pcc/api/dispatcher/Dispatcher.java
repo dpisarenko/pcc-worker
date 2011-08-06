@@ -13,7 +13,8 @@ package co.altruix.pcc.api.dispatcher;
 
 import ru.altruix.commons.api.conventions.SingleActivityModule;
 import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
-import co.altruix.pcc.api.channels.PccChannel;
+import co.altruix.pcc.api.channels.IncomingWorkerChannel;
+import co.altruix.pcc.api.channels.OutgoingWorkerChannel;
 
 /**
  * @author DP118M
@@ -21,5 +22,6 @@ import co.altruix.pcc.api.channels.PccChannel;
  */
 public interface Dispatcher extends SingleActivityModule,
         ModuleWithInjectableDependencies {
-    void addChannel(final PccChannel aChannel);
+    void addIncomingChannel(final IncomingWorkerChannel aChannel);
+    void addOutgoingChannel(final OutgoingWorkerChannel aChannel);
 }

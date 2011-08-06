@@ -18,6 +18,10 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.jms.JMSException;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,8 +61,8 @@ import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.
-    ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -67,6 +71,12 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
  */
 class DefaultImmediateSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
+    private static final String END_CONFIRMATION_MESSAGE =
+            "Finished calcualtion of plan for user '${userId}'";
+
+    private static final String START_CONFIRMATION_MESSAGE =
+            "Started to calculate plan for user '${userId}'";
+
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
 
@@ -89,7 +99,9 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     private String clientId;
 
     private String clientSecret;
-    
+
+    private OutgoingQueueChannel worker2TesterChannel;
+
     public void setMessage(final PccMessage aMessage) {
         this.message = aMessage;
     }
@@ -107,6 +119,12 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                 "Immediate rescheduling request for user {}, start processing",
                 userData.getUsername());
 
+        try {
+            sendConfirmationForTester(userData,
+                    START_CONFIRMATION_MESSAGE);
+        } catch (final JMSException exception) {
+            LOGGER.error("", exception);
+        }
         importDataFromGoogleTasks(userData);
         calculatePlan(userData);
         exportDataToGoogleCalendar(userData);
@@ -114,6 +132,23 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         LOGGER.debug(
                 "Immediate rescheduling request for user {}, processing finished",
                 userData.getUsername());
+
+        try {
+            sendConfirmationForTester(userData,
+                    END_CONFIRMATION_MESSAGE);
+        } catch (final JMSException exception) {
+            LOGGER.error("", exception);
+        }
+    }
+
+    private void sendConfirmationForTester(final UserData aUser,
+            String aTemplate) throws JMSException, PccException {
+        final Session session = this.worker2TesterChannel.getSession();
+        final TextMessage confirmationMessage =
+                session.createTextMessage(aTemplate.replace("${userId}",
+                        Long.toString(aUser.getId())));
+
+        this.worker2TesterChannel.send(confirmationMessage);
     }
 
     private void calculatePlan(final UserData aUser) {
@@ -169,7 +204,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             final PrivateKey privKey = getPrivateKey();
             final OAuthRsaSha1Signer signer = new OAuthRsaSha1Signer(privKey);
 
-            final GoogleOAuthParameters oauthParameters = new GoogleOAuthParameters();
+            final GoogleOAuthParameters oauthParameters =
+                    new GoogleOAuthParameters();
             oauthParameters.setOAuthConsumerKey(consumerKey);
             oauthParameters.setScope(calendarScope);
 
@@ -305,10 +341,11 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         final JacksonFactory jsonFactory = new JacksonFactory();
 
         try {
-            final String googleTasksRefreshToken = aUserData.getGoogleTasksRefreshToken();
-            
+            final String googleTasksRefreshToken =
+                    aUserData.getGoogleTasksRefreshToken();
+
             LOGGER.debug("googleTasksRefreshToken: {}", googleTasksRefreshToken);
-            
+
             final AccessTokenResponse response =
                     new GoogleAccessTokenRequest.GoogleRefreshTokenGrant(
                             httpTransport,
@@ -381,5 +418,10 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     @Override
     public void setClientSecret(final String aClientSecret) {
         this.clientSecret = aClientSecret;
+    }
+
+    @Override
+    public void setWorker2TesterChannel(final OutgoingQueueChannel aChannel) {
+        this.worker2TesterChannel = aChannel;
     }
 }

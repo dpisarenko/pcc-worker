@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.pcc.impl.queuechannel;
+package co.altruix.pcc.impl.incomingqueuechannel;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -24,15 +24,15 @@ import org.slf4j.LoggerFactory;
 import ru.altruix.commons.api.di.PccException;
 
 import co.altruix.pcc.api.cdm.PccMessage;
-import co.altruix.pcc.api.queuechannel.QueueChannel;
+import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannel;
 
 /**
  * @author DP118M
  * 
  */
-class DefaultQueueChannel implements QueueChannel {
+class DefaultIncomingQueueChannel implements IncomingQueueChannel {
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(DefaultQueueChannel.class);
+            .getLogger(DefaultIncomingQueueChannel.class);
 
     private Session session;
     private String queueName;

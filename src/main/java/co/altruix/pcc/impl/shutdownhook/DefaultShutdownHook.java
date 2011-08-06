@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.altruix.commons.api.di.PccException;
-import co.altruix.pcc.api.channels.PccChannel;
+import co.altruix.pcc.api.channels.WorkerChannel;
 import co.altruix.pcc.api.shutdownhook.ShutdownHook;
 
 /**
@@ -33,12 +33,12 @@ class DefaultShutdownHook implements ShutdownHook {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultShutdownHook.class);
 
-    private List<PccChannel> channels = new LinkedList<PccChannel>();
+    private List<WorkerChannel> channels = new LinkedList<WorkerChannel>();
     private Connection connection;
     private Session session;
 
     public void run() throws PccException {
-        for (final PccChannel curChannel : this.channels) {
+        for (final WorkerChannel curChannel : this.channels) {
             try {
                 curChannel.close();
             } catch (final PccException exception) {
@@ -63,7 +63,7 @@ class DefaultShutdownHook implements ShutdownHook {
         connection = aConnection;
     }
 
-    public void addChannel(final PccChannel aChannel) {
+    public void addChannel(final WorkerChannel aChannel) {
         this.channels.add(aChannel);
     }
 

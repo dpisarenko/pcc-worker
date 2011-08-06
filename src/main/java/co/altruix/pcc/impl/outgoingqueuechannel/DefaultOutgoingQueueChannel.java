@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.pcc.impl.writeonlyqueuechannel;
+package co.altruix.pcc.impl.outgoingqueuechannel;
 
 import javax.jms.Destination;
 import javax.jms.JMSException;
@@ -17,17 +17,19 @@ import javax.jms.Message;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 
+import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
+
 import ru.altruix.commons.api.di.PccException;
-import co.altruix.pcc.api.writeonlyqueuechannel.WriteOnlyQueueChannel;
 
 /**
  * @author DP118M
  * 
  */
-class DefaultWriteOnlyQueueChannel implements WriteOnlyQueueChannel {
+class DefaultOutgoingQueueChannel implements OutgoingQueueChannel {
     private Session session;
     private String queueName;
     private MessageProducer producer;
+    private String channelName;
 
     @Override
     public void init() throws PccException {
@@ -67,5 +69,15 @@ class DefaultWriteOnlyQueueChannel implements WriteOnlyQueueChannel {
         } catch (final JMSException exception) {
             throw new PccException(exception);
         }
+    }
+
+    @Override
+    public void setChannelName(final String aChannelName) {
+        this.channelName = aChannelName;
+    }
+
+    @Override
+    public String getChannelName() {
+        return this.channelName;
     }
 }

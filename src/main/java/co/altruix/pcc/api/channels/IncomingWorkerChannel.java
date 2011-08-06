@@ -9,14 +9,11 @@
  *
  **/
 
-package co.altruix.pcc.api.writeonlyqueuechannel;
+package co.altruix.pcc.api.channels;
 
-import ru.altruix.commons.api.conventions.Factory;
+import co.altruix.pcc.api.cdm.PccMessage;
 
-/**
- * @author DP118M
- *
- */
-public interface WriteOnlyQueueChannelFactory extends Factory<WriteOnlyQueueChannel> {
-
+public interface IncomingWorkerChannel extends WorkerChannel {    
+    boolean newMessagesAvailable();
+    PccMessage getNextMessage();
 }
