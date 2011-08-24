@@ -63,7 +63,7 @@ public final class PccWorkerApp {
         final Injector injector = initDependencyInjector(config);
 
         final Persistence persistence = injector.getInstance(Persistence.class);
-        persistence.openSession();
+        persistence.openSession(Persistence.HOST_LOCAL, null, null, "pcc");
 
         final String brokerUrl = config.getProperty("brokerUrl");
         final String username = config.getProperty("username");
