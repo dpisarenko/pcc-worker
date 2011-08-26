@@ -11,10 +11,6 @@
 
 package co.altruix.pcc;
 
-import static co.altruix.pcc.api.immediatereschedulingrequestprocessor.
-    ImmediateSchedulingRequestMessageProcessor.
-        CONFIRMATION_MESSAGE_CHANNEL_NAME;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,8 +35,6 @@ import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannel;
 import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializer;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHook;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
@@ -77,17 +71,14 @@ public final class PccWorkerApp {
         final IncomingQueueChannel web2workerQueue =
                 getWeb2WorkerQueue(config, injector, session);
 
-        final OutgoingQueueChannel worker2testerQueue =
-                getWorker2TesterQueue(config, injector, session);
-
         final Dispatcher dispatcher = getDispatcher(injector);
 
         dispatcher.addIncomingChannel(web2workerQueue);
-        dispatcher.addOutgoingChannel(worker2testerQueue);
+        dispatcher.setTesterLogFilePath(new File(config.getProperty("testerLogFilePath")));
 
         setupShutdownHook(injector, session,
                 mqInitializer.getConnection(), new WorkerChannel[] {
-                        web2workerQueue, worker2testerQueue });
+                        web2workerQueue });
 
         while (true) {
             try {
@@ -102,24 +93,6 @@ public final class PccWorkerApp {
                 LOGGER.error("", exception);
             }
         }
-    }
-
-    private OutgoingQueueChannel getWorker2TesterQueue(
-            final Properties aConfig,
-            final Injector aInjector, final Session aSession)
-            throws PccException {
-        final OutgoingQueueChannelFactory factory =
-                aInjector.getInstance(OutgoingQueueChannelFactory.class);
-        final OutgoingQueueChannel channel = factory.create();
-
-        final String queueName = aConfig.getProperty("worker2TesterQueueName");
-
-        channel.setQueueName(queueName);
-        channel.setSession(aSession);
-        channel.setChannelName(CONFIRMATION_MESSAGE_CHANNEL_NAME);
-        channel.init();
-
-        return channel;
     }
 
     private IncomingQueueChannel getWeb2WorkerQueue(final Properties config,

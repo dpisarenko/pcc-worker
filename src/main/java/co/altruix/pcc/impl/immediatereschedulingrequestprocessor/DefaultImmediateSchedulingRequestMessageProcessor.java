@@ -11,16 +11,13 @@
 
 package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivateKey;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.jms.JMSException;
-import javax.jms.Session;
-import javax.jms.TextMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +57,9 @@ import com.google.gdata.util.ServiceException;
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
+import ru.altruix.commons.impl.appendutils.AppendUtils;
 import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -100,7 +97,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
     private String clientSecret;
 
-    private OutgoingQueueChannel worker2TesterChannel;
+    private File testerLogFilePath;
 
     public void setMessage(final PccMessage aMessage) {
         this.message = aMessage;
@@ -119,12 +116,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                 "Immediate rescheduling request for user {}, start processing",
                 userData.getUsername());
 
-        try {
-            sendConfirmationForTester(userData,
-                    START_CONFIRMATION_MESSAGE);
-        } catch (final JMSException exception) {
-            LOGGER.error("", exception);
-        }
+        sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
+
         importDataFromGoogleTasks(userData);
         calculatePlan(userData);
         exportDataToGoogleCalendar(userData);
@@ -133,22 +126,18 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
                 "Immediate rescheduling request for user {}, processing finished",
                 userData.getUsername());
 
-        try {
-            sendConfirmationForTester(userData,
-                    END_CONFIRMATION_MESSAGE);
-        } catch (final JMSException exception) {
-            LOGGER.error("", exception);
-        }
+        sendConfirmationForTester(userData,
+                END_CONFIRMATION_MESSAGE);
     }
 
     private void sendConfirmationForTester(final UserData aUser,
-            String aTemplate) throws JMSException, PccException {
-        final Session session = this.worker2TesterChannel.getSession();
-        final TextMessage confirmationMessage =
-                session.createTextMessage(aTemplate.replace("${userId}",
-                        Long.toString(aUser.getId())));
-
-        this.worker2TesterChannel.send(confirmationMessage);
+            String aTemplate) {
+        try {
+            AppendUtils.appendToFile(aTemplate.replace("${userId}",
+                    Long.toString(aUser.getId())), this.testerLogFilePath);
+        } catch (final IOException exception) {
+            LOGGER.error("", exception);
+        }
     }
 
     private void calculatePlan(final UserData aUser) {
@@ -421,7 +410,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     }
 
     @Override
-    public void setWorker2TesterChannel(final OutgoingQueueChannel aChannel) {
-        this.worker2TesterChannel = aChannel;
+    public void setTesterLogFilePath(final File aTesterLogFilePath) {
+        this.testerLogFilePath = aTesterLogFilePath;
     }
 }

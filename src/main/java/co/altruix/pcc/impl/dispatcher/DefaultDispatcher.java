@@ -11,6 +11,7 @@
 
 package co.altruix.pcc.impl.dispatcher;
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,13 +23,10 @@ import com.google.inject.Injector;
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.channels.IncomingWorkerChannel;
-import co.altruix.pcc.api.channels.OutgoingWorkerChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
-import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 
 /**
  * @author DP118M
@@ -39,11 +37,11 @@ class DefaultDispatcher implements Dispatcher {
             .getLogger(DefaultDispatcher.class);
     private List<IncomingWorkerChannel> incomingChannels =
             new LinkedList<IncomingWorkerChannel>();
-    private OutgoingQueueChannel worker2testerChannel;
     private MessageProcessorSelector selector;
-
+    private File testerLogFilePath;
+    
     public void run() throws PccException {
-        this.selector.setWorker2TesterChannel(worker2testerChannel);
+        this.selector.setTesterLogFilePath(this.testerLogFilePath);
         
         for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
             if (curChannel.newMessagesAvailable()) {
@@ -87,15 +85,7 @@ class DefaultDispatcher implements Dispatcher {
     }
     
     @Override
-    public void addOutgoingChannel(final OutgoingWorkerChannel aChannel) {
-        if (aChannel instanceof OutgoingQueueChannel) {
-            final OutgoingQueueChannel queue = (OutgoingQueueChannel) aChannel;
-
-            if (ImmediateSchedulingRequestMessageProcessor.CONFIRMATION_MESSAGE_CHANNEL_NAME
-                    .equals(queue.getChannelName())) {
-                worker2testerChannel = queue;
-            }
-        }
-
+    public void setTesterLogFilePath(final File aTesterLogFilePath) {
+        this.testerLogFilePath = aTesterLogFilePath;
     }
 }

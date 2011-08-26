@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.impl.messageprocessorselector;
 
+import java.io.File;
+
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
@@ -19,7 +21,6 @@ import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedul
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelector;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -62,8 +63,8 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
     }
 
     @Override
-    public void setWorker2TesterChannel(final OutgoingQueueChannel aChannel) {
+    public void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.immediateSchedulingRequestMessageProcessor
-                .setWorker2TesterChannel(aChannel);
+                .setTesterLogFilePath(aTesterLogFilePath);
     }
 }

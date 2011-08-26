@@ -11,8 +11,9 @@
 
 package co.altruix.pcc.api.immediatereschedulingrequestprocessor;
 
+import java.io.File;
+
 import co.altruix.pcc.api.messageprocessor.MessageProcessor;
-import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannel;
 
 /**
  * @author DP118M
@@ -34,5 +35,5 @@ public interface ImmediateSchedulingRequestMessageProcessor extends
 
     void setConsumerKey(final String aConsumerKey);
     
-    void setWorker2TesterChannel(final OutgoingQueueChannel aChannel);
+    void setTesterLogFilePath(final File aTesterLogFilePath);
 }
