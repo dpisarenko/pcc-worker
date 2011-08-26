@@ -15,10 +15,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivateKey;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +70,18 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
  */
 class DefaultImmediateSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
+    private static final String TIMESTAMP_FORMAT = "dd.mm.yyyy HH:mm:ss";
+
+    private static final String LINE_SEPARATOR = System
+            .getProperty("line.separator");
+
     private static final String END_CONFIRMATION_MESSAGE =
-            "Finished calcualtion of plan for user '${userId}'";
+            "@{timestamp}: Finished calcualtion of plan for user '@{userId}'"
+                    + LINE_SEPARATOR;
 
     private static final String START_CONFIRMATION_MESSAGE =
-            "Started to calculate plan for user '${userId}'";
+            "@{timestamp}: Started to calculate plan for user '@{userId}'"
+                    + LINE_SEPARATOR;
 
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
@@ -133,11 +142,24 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     private void sendConfirmationForTester(final UserData aUser,
             String aTemplate) {
         try {
-            AppendUtils.appendToFile(aTemplate.replace("${userId}",
-                    Long.toString(aUser.getId())), this.testerLogFilePath);
+            final String[] searchList =
+                    new String[] { "@{timestamp}", "@{userId}" };
+            final String[] replacementList =
+                    new String[] { getTimestamp(), Long.toString(aUser.getId()) };
+
+            final String confirmationMessage =
+                    StringUtils.replaceEach(aTemplate, searchList,
+                            replacementList);
+
+            AppendUtils.appendToFile(confirmationMessage,
+                    this.testerLogFilePath);
         } catch (final IOException exception) {
             LOGGER.error("", exception);
         }
+    }
+
+    private String getTimestamp() {
+        return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
     private void calculatePlan(final UserData aUser) {
