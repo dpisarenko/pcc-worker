@@ -11,10 +11,12 @@
 
 package co.altruix.pcc.api.googletasksimporter;
 
+import ru.altruix.commons.api.conventions.Factory;
+
 /**
  * @author DP118M
  *
  */
-public interface GoogleTasksImporterFactory {
+public interface GoogleTasksImporterFactory extends Factory<GoogleTasksImporter> {
 
 }

@@ -102,9 +102,6 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
     private String allCalendarsFeedUrl;
 
-    private String clientId;
-
-    private String clientSecret;
 
     private File testerLogFilePath;
 
@@ -348,50 +345,6 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     }
 
     private void importDataFromGoogleTasks(final UserData aUserData) {
-        final HttpTransport httpTransport = new NetHttpTransport();
-        final JacksonFactory jsonFactory = new JacksonFactory();
-
-        try {
-            final String googleTasksRefreshToken =
-                    aUserData.getGoogleTasksRefreshToken();
-
-            LOGGER.debug("googleTasksRefreshToken: {}", googleTasksRefreshToken);
-
-            final AccessTokenResponse response =
-                    new GoogleAccessTokenRequest.GoogleRefreshTokenGrant(
-                            httpTransport,
-                            jsonFactory,
-                            clientId, clientSecret,
-                            googleTasksRefreshToken)
-                            .execute();
-
-            final GoogleAccessProtectedResource accessProtectedResource =
-                    new GoogleAccessProtectedResource(
-                            response.accessToken, httpTransport, jsonFactory,
-                            clientId, clientSecret,
-                            googleTasksRefreshToken);
-
-            final Tasks service =
-                    new Tasks(httpTransport, accessProtectedResource,
-                            jsonFactory);
-            service.setApplicationName(this.consumerKey);
-
-            final GoogleCalendarTasks2PccImporterFactory importerFactory =
-                    this.injector
-                            .getInstance(GoogleCalendarTasks2PccImporterFactory.class);
-            final GoogleCalendarTasks2PccImporter importer =
-                    importerFactory.create();
-
-            importer.setInjector(this.injector);
-            importer.setService(service);
-            importer.setUser(aUserData);
-
-            importer.run();
-        } catch (final IOException exception) {
-            LOGGER.error("", exception);
-        } catch (final PccException exception) {
-            LOGGER.error("", exception);
-        }
     }
 
     public void setInjector(final Injector aInjector) {
