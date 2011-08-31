@@ -76,7 +76,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
             .getProperty("line.separator");
 
     private static final String END_CONFIRMATION_MESSAGE =
-            "@{timestamp}: Finished calcualtion of plan for user '@{userId}'"
+            "@{timestamp}: Finished calculation of plan for user '@{userId}'"
                     + LINE_SEPARATOR;
 
     private static final String START_CONFIRMATION_MESSAGE =
