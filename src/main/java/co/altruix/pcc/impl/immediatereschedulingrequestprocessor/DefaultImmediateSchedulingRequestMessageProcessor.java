@@ -70,7 +70,7 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
  */
 class DefaultImmediateSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
-    private static final String TIMESTAMP_FORMAT = "dd.mm.yyyy HH:mm:ss";
+    private static final String TIMESTAMP_FORMAT = "dd.MM.yyyy HH:mm:ss";
 
     private static final String LINE_SEPARATOR = System
             .getProperty("line.separator");
