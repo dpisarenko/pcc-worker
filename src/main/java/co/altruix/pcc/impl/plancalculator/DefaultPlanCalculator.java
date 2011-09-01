@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 
 import at.silverstrike.pcc.api.export2tj3.InvalidDurationException;
+import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.Resource;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
@@ -40,13 +41,15 @@ class DefaultPlanCalculator implements PlanCalculator {
     private Injector injector;
     private UserData user;
     private String taskJugglerPath;
-    
+    private List<Booking> bookings;
     
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultPlanCalculator.class);
 
     @Override
     public void run() throws PccException {
+        this.bookings = null;
+        
         final Persistence persistence = this.injector.getInstance(Persistence.class);
         
         final ProjectScheduler scheduler =
@@ -82,8 +85,10 @@ class DefaultPlanCalculator implements PlanCalculator {
         scheduler.setInjector(injector);
         scheduler.setNow(now);
         scheduler.setTaskJugglerPath(taskJugglerPath);
+        scheduler.setTransientMode(true);
         try {
             scheduler.run();
+            this.bookings = scheduler.getBookings();
         } catch (final InvalidDurationException exception) {
             LOGGER.error("", exception);
         } catch (final PccException exception) {
@@ -109,6 +114,10 @@ class DefaultPlanCalculator implements PlanCalculator {
     @Override
     public void setTaskJugglerPath(final String aTaskJugglerPath) {
         this.taskJugglerPath = aTaskJugglerPath;
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
     }
 
 }

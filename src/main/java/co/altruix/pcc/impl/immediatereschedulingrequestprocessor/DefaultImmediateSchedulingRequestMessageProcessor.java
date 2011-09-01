@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
@@ -102,8 +103,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
 
         final List<SchedulingObject> createdTasks = importDataFromGoogleTasks(userData);
-        calculatePlan(userData, createdTasks);
-        exportDataToGoogleCalendar(userData);
+        final List<Booking> bookings = calculatePlan(userData, createdTasks);
+        exportDataToGoogleCalendar(userData, bookings);
 
         LOGGER.debug(
                 "Immediate rescheduling request for user {}, processing finished",
@@ -136,7 +137,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
-    private void calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
+    private List<Booking> calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
 
         final PlanCalculatorFactory factory = this.injector.getInstance(PlanCalculatorFactory.class);
@@ -151,10 +152,10 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
-        
+        return calculator.getBookings();
     }
 
-    private void exportDataToGoogleCalendar(final UserData aUser) {
+    private void exportDataToGoogleCalendar(final UserData aUser, final List<Booking> aBookings) {
         final Exporter2GoogleCalendarFactory factory = this.injector.getInstance(Exporter2GoogleCalendarFactory.class);
         final Exporter2GoogleCalendar exporter = factory.create();
         
@@ -163,6 +164,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         exporter.setConsumerKey(this.consumerKey);
         exporter.setInjector(this.injector);
         exporter.setUser(aUser);
+        exporter.setBookings(aBookings);
         
         try {
             exporter.run();

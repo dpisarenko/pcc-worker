@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.UserData;
-import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.privatekeyreader.PrivateKeyReader;
 import at.silverstrike.pcc.api.privatekeyreader.PrivateKeyReaderFactory;
 import at.silverstrike.pcc.impl.privatekeyreader.DefaultPrivateKeyReaderFactory;
@@ -38,7 +37,6 @@ import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.data.extensions.When;
 import com.google.gdata.util.ServiceException;
-import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
@@ -51,8 +49,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultExporter2GoogleCalendar.class);
 
-    private Injector injector;
-
     private String consumerKey;
 
     private String calendarScope;
@@ -61,10 +57,10 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
 
     private String allCalendarsFeedUrl;
 
+    private List<Booking> bookings;
+    
     @Override
     public void run() throws PccException {
-        final Persistence persistence = this.injector.getInstance(Persistence.class);
-        
         try {
             final PrivateKey privKey = getPrivateKey();
             final OAuthRsaSha1Signer signer = new OAuthRsaSha1Signer(privKey);
@@ -144,12 +140,9 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                 curEvent.delete();
             }
 
-            final List<Booking> bookings =
-                    persistence.getBookings(user);
-
             LOGGER.debug("Bookings to export: {}", bookings.size());
 
-            for (final Booking curBooking : bookings) {
+            for (final Booking curBooking : this.bookings) {
                 LOGGER.debug(
                         "Exporting: start date time: {}, end date time: {}",
                         new Object[] { curBooking.getStartDateTime(),
@@ -201,10 +194,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
         }
     }
 
-    public void setInjector(final Injector aInjector) {
-        this.injector = aInjector;
-    }
-
     @Override
     public void setConsumerKey(final String aConsumerKey) {
         this.consumerKey = aConsumerKey;
@@ -223,6 +212,11 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     @Override
     public void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
         this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
+    }
+    
+    @Override
+    public void setBookings(final List<Booking> aBookings) {
+        this.bookings = aBookings;
     }
 
 }

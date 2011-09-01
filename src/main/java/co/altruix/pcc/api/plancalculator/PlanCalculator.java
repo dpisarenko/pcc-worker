@@ -13,6 +13,7 @@ package co.altruix.pcc.api.plancalculator;
 
 import java.util.List;
 
+import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import ru.altruix.commons.api.conventions.SingleActivityModule;
@@ -26,4 +27,5 @@ public interface PlanCalculator extends SingleActivityModule, ModuleWithInjectab
     void setSchedulingObjects(final List<SchedulingObject> aObjects);
     void setUser(final UserData aUser);
     void setTaskJugglerPath(final String aTaskJugglerPath);
+    List<Booking> getBookings();
 }
