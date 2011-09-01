@@ -11,6 +11,9 @@
 
 package co.altruix.pcc.api.googletasksimporter;
 
+import java.util.List;
+
+import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import ru.altruix.commons.api.conventions.SingleActivityModule;
 import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
@@ -28,4 +31,6 @@ public interface GoogleTasksImporter extends SingleActivityModule,
     public abstract void setClientId(final String aClientId);
 
     public abstract void setConsumerKey(final String aConsumerKey);
+
+    public abstract List<SchedulingObject> getCreatedTasks();
 }

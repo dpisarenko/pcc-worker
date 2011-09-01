@@ -101,8 +101,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
         sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
 
-        importDataFromGoogleTasks(userData);
-        calculatePlan(userData);
+        final List<SchedulingObject> createdTasks = importDataFromGoogleTasks(userData);
+        calculatePlan(userData, createdTasks);
         exportDataToGoogleCalendar(userData);
 
         LOGGER.debug(
@@ -136,17 +136,13 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
-    private void calculatePlan(final UserData aUser) {
-
+    private void calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
-
-        final List<SchedulingObject> schedulingObjectsToExport =
-                persistence.getTopLevelTasks(aUser);
 
         final PlanCalculatorFactory factory = this.injector.getInstance(PlanCalculatorFactory.class);
         final PlanCalculator calculator = factory.create();
         
-        calculator.setSchedulingObjects(schedulingObjectsToExport);
+        calculator.setSchedulingObjects(aCreatedTasks);
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
         calculator.setTaskJugglerPath(this.taskJugglerPath);
@@ -176,10 +172,11 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     }
 
 
-    private void importDataFromGoogleTasks(final UserData aUserData) {
+    private List<SchedulingObject> importDataFromGoogleTasks(final UserData aUserData) {
         final GoogleTasksImporterFactory factory =
                 this.injector.getInstance(GoogleTasksImporterFactory.class);
         final GoogleTasksImporter importer = factory.create();
+        List<SchedulingObject> createdTasks = null;
 
         importer.setClientId(this.clientId);
         importer.setClientSecret(this.clientSecret);
@@ -189,9 +186,12 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
         try {
             importer.run();
+            createdTasks = importer.getCreatedTasks();
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
+        
+        return createdTasks;
     }
 
     public void setInjector(final Injector aInjector) {
