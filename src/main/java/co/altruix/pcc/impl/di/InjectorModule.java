@@ -44,6 +44,7 @@ import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultBookingsFile2BookingsFa
 import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultTj3BookingsParserFactory;
 import at.silverstrike.pcc.impl.tj3deadlinesparser.DefaultTj3DeadlinesFileParserFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
+import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
@@ -53,6 +54,7 @@ import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 import co.altruix.pcc.impl.dispatcher.DefaultDispatcherFactory;
+import co.altruix.pcc.impl.exporter2googlecalendar.DefaultExporter2GoogleCalendarFactory;
 import co.altruix.pcc.impl.googletasksimporter.DefaultGoogleTasksImporterFactory;
 import co.altruix.pcc.impl.immediatereschedulingrequestprocessor.DefaultImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.impl.messageprocessorselector.DefaultMessageProcessorSelectorFactory;
@@ -127,6 +129,8 @@ class InjectorModule extends AbstractModule {
                 new DefaultGoogleTasksImporterFactory());
         interfacesByInstances.put(PlanCalculatorFactory.class,
                 new DefaultPlanCalculatorFactory());
+        interfacesByInstances.put(Exporter2GoogleCalendarFactory.class,
+                new DefaultExporter2GoogleCalendarFactory());
 
         for (final Class clazz : interfacesByInstances.keySet()) {
             final Object instance = interfacesByInstances.get(clazz);
