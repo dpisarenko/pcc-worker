@@ -18,5 +18,5 @@ import ru.altruix.commons.api.conventions.Factory;
  * 
  */
 public interface PlanCalculatorFactory extends Factory<PlanCalculator> {
-
+    
 }

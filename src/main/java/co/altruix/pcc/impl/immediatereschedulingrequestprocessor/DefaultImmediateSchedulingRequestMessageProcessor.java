@@ -17,22 +17,18 @@ import java.net.URL;
 import java.security.PrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import at.silverstrike.pcc.api.export2tj3.InvalidDurationException;
 import at.silverstrike.pcc.api.model.Booking;
-import at.silverstrike.pcc.api.model.Resource;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.privatekeyreader.PrivateKeyReader;
 import at.silverstrike.pcc.api.privatekeyreader.PrivateKeyReaderFactory;
-import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 import at.silverstrike.pcc.impl.privatekeyreader.DefaultPrivateKeyReaderFactory;
 
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
@@ -55,6 +51,8 @@ import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporter;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
+import co.altruix.pcc.api.plancalculator.PlanCalculator;
+import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
 /**
@@ -79,7 +77,7 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
 
-    private static final int ONE_MONTH = 1;
+    
 
     private Persistence persistence;
 
@@ -155,51 +153,25 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     }
 
     private void calculatePlan(final UserData aUser) {
-        final ProjectScheduler scheduler =
-                injector.getInstance(ProjectScheduler.class);
 
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
 
         final List<SchedulingObject> schedulingObjectsToExport =
                 persistence.getTopLevelTasks(aUser);
 
-        LOGGER.debug("SCHEDULING OBJECTS TO EXPORT (START)");
-        for (final SchedulingObject curSchedulingObject : schedulingObjectsToExport) {
-            LOGGER.debug("Name: {}, ID: {}",
-                    new Object[] { curSchedulingObject.getName(),
-                            curSchedulingObject.getId() });
-        }
-        LOGGER.debug("SCHEDULING OBJECTS TO EXPORT (END)");
-
-        scheduler.getProjectExportInfo().setSchedulingObjectsToExport(
-                schedulingObjectsToExport);
-
-        final List<Resource> resources = new LinkedList<Resource>();
-        resources.add(persistence.getCurrentWorker(aUser));
-
-        scheduler.getProjectExportInfo().setResourcesToExport(resources);
-
-        scheduler.getProjectExportInfo().setProjectName("pcc");
-
-        final Date now = new Date();
-
-        scheduler.getProjectExportInfo().setNow(now);
-        scheduler.getProjectExportInfo().setCopyright("Dmitri Pisarenko");
-        scheduler.getProjectExportInfo().setCurrency("EUR");
-        scheduler.getProjectExportInfo().setSchedulingHorizonMonths(ONE_MONTH);
-        scheduler.getProjectExportInfo().setUserData(aUser);
-
-        scheduler.setDirectory(System.getProperty("user.dir") + "/");
-        scheduler.setInjector(injector);
-        scheduler.setNow(now);
-        scheduler.setTaskJugglerPath(taskJugglerPath);
+        final PlanCalculatorFactory factory = this.injector.getInstance(PlanCalculatorFactory.class);
+        final PlanCalculator calculator = factory.create();
+        
+        calculator.setSchedulingObjects(schedulingObjectsToExport);
+        calculator.setInjector(this.injector);
+        calculator.setUser(aUser);
+        calculator.setTaskJugglerPath(this.taskJugglerPath);
         try {
-            scheduler.run();
-        } catch (final InvalidDurationException exception) {
-            LOGGER.error("", exception);
+            calculator.run();
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
+        
     }
 
     private void exportDataToGoogleCalendar(final UserData aUser) {
