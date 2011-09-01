@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import ru.altruix.commons.api.di.InjectorFactory;
 
+import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
@@ -38,6 +39,7 @@ public class TestDefaultInjectorFactory {
 
         try {
             injector.getInstance(OutgoingQueueChannelFactory.class);
+            injector.getInstance(Exporter2GoogleCalendarFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
         }
