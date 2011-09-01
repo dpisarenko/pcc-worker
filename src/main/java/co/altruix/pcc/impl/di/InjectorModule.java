@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.impl.di;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import at.silverstrike.pcc.api.embeddedfilereading.EmbeddedFileReader;
@@ -42,17 +44,21 @@ import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultBookingsFile2BookingsFa
 import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultTj3BookingsParserFactory;
 import at.silverstrike.pcc.impl.tj3deadlinesparser.DefaultTj3DeadlinesFileParserFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
+import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
 import co.altruix.pcc.api.mq.MqInfrastructureInitializerFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
+import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 import co.altruix.pcc.impl.dispatcher.DefaultDispatcherFactory;
+import co.altruix.pcc.impl.googletasksimporter.DefaultGoogleTasksImporterFactory;
 import co.altruix.pcc.impl.immediatereschedulingrequestprocessor.DefaultImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.impl.messageprocessorselector.DefaultMessageProcessorSelectorFactory;
 import co.altruix.pcc.impl.mq.DefaultMqInfrastructureInitializerFactory;
 import co.altruix.pcc.impl.outgoingqueuechannel.DefaultOutgoingQueueChannelFactory;
+import co.altruix.pcc.impl.plancalculator.DefaultPlanCalculatorFactory;
 import co.altruix.pcc.impl.incomingqueuechannel.DefaultIncomingQueueChannelFactory;
 import co.altruix.pcc.impl.shutdownhook.DefaultShutdownHookFactory;
 
@@ -69,48 +75,64 @@ class InjectorModule extends AbstractModule {
         this.configuration = aConfiguration;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected void configure() {
-        bind(DispatcherFactory.class)
-                .toInstance(new DefaultDispatcherFactory());
-        bind(ImmediateSchedulingRequestMessageProcessorFactory.class)
-                .toInstance(
-                        new DefaultImmediateSchedulingRequestMessageProcessorFactory(
-                                this.configuration));
-        bind(MessageProcessorSelectorFactory.class).toInstance(
+        final Map<Class, Object> interfacesByInstances =
+                new HashMap<Class, Object>();
+
+        interfacesByInstances.put(DispatcherFactory.class,
+                new DefaultDispatcherFactory());
+        interfacesByInstances.put(
+                ImmediateSchedulingRequestMessageProcessorFactory.class,
+                new DefaultImmediateSchedulingRequestMessageProcessorFactory(
+                        this.configuration));
+        interfacesByInstances.put(MessageProcessorSelectorFactory.class,
                 new DefaultMessageProcessorSelectorFactory());
-        bind(MqInfrastructureInitializerFactory.class).toInstance(
+        interfacesByInstances.put(MqInfrastructureInitializerFactory.class,
                 new DefaultMqInfrastructureInitializerFactory());
-        bind(IncomingQueueChannelFactory.class).toInstance(
+        interfacesByInstances.put(IncomingQueueChannelFactory.class,
                 new DefaultIncomingQueueChannelFactory());
-        bind(ShutdownHookFactory.class).toInstance(
+        interfacesByInstances.put(ShutdownHookFactory.class,
                 new DefaultShutdownHookFactory());
-        bind(Persistence.class).toInstance(
-                new DefaultPersistence());
-        bind(GoogleCalendarTasks2PccImporterFactory.class).toInstance(
+        interfacesByInstances.put(Persistence.class, new DefaultPersistence());
+        interfacesByInstances.put(GoogleCalendarTasks2PccImporterFactory.class,
                 new DefaultGoogleCalendarTasks2PccImporterFactory());
-        bind(ProjectScheduler.class).toInstance(getProjectScheduler());
-        bind(TaskJuggler3Exporter.class).toInstance(getTaskJuggler3Exporter());
-        bind(GoogleCalendarTasks2PccImporter2Factory.class).toInstance(
+        interfacesByInstances
+                .put(ProjectScheduler.class, getProjectScheduler());
+        interfacesByInstances.put(TaskJuggler3Exporter.class,
+                getTaskJuggler3Exporter());
+        interfacesByInstances.put(
+                GoogleCalendarTasks2PccImporter2Factory.class,
                 new DefaultGoogleCalendarTasks2PccImporter2Factory());
-        bind(IsGoogleTaskRelevantCalculatorFactory.class).toInstance(
+        interfacesByInstances.put(IsGoogleTaskRelevantCalculatorFactory.class,
                 new DefaultIsGoogleTaskRelevantCalculatorFactory());
-        bind(GoogleTaskNotesParserFactory.class).toInstance(
+        interfacesByInstances.put(GoogleTaskNotesParserFactory.class,
                 new DefaultGoogleTaskNotesParserFactory());
-        bind(GoogleTask2PccTaskConverterFactory.class).toInstance(
+        interfacesByInstances.put(GoogleTask2PccTaskConverterFactory.class,
                 new DefaultGoogleTask2PccTaskConverterFactory());
-        bind(GoogleTaskTitleParserFactory.class).toInstance(
+        interfacesByInstances.put(GoogleTaskTitleParserFactory.class,
                 new DefaultGoogleTaskTitleParserFactory());
-        bind(EmbeddedFileReader.class).toInstance(
+        interfacesByInstances.put(EmbeddedFileReader.class,
                 new DefaultEmbeddedFileReaderFactory().create());
-        bind(Tj3DeadlinesFileParserFactory.class).toInstance(
+        interfacesByInstances.put(Tj3DeadlinesFileParserFactory.class,
                 new DefaultTj3DeadlinesFileParserFactory());
-        bind(Tj3BookingsParserFactory.class).toInstance(
+        interfacesByInstances.put(Tj3BookingsParserFactory.class,
                 new DefaultTj3BookingsParserFactory());
-        bind(BookingsFile2BookingsFactory.class).toInstance(
+        interfacesByInstances.put(BookingsFile2BookingsFactory.class,
                 new DefaultBookingsFile2BookingsFactory());
-        bind(OutgoingQueueChannelFactory.class).toInstance(
+        interfacesByInstances.put(OutgoingQueueChannelFactory.class,
                 new DefaultOutgoingQueueChannelFactory());
+        interfacesByInstances.put(GoogleTasksImporterFactory.class,
+                new DefaultGoogleTasksImporterFactory());
+        interfacesByInstances.put(PlanCalculatorFactory.class,
+                new DefaultPlanCalculatorFactory());
+
+        for (final Class clazz : interfacesByInstances.keySet()) {
+            final Object instance = interfacesByInstances.get(clazz);
+
+            bind(clazz).toInstance(instance);
+        }
     }
 
     private TaskJuggler3Exporter getTaskJuggler3Exporter() {
