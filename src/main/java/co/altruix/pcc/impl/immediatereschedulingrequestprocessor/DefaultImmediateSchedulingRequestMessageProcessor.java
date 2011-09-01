@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import at.silverstrike.pcc.api.export2tj3.InvalidDurationException;
-import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporter;
-import at.silverstrike.pcc.api.gcaltasks2pcc.GoogleCalendarTasks2PccImporterFactory;
 import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.Resource;
 import at.silverstrike.pcc.api.model.SchedulingObject;
@@ -37,13 +35,6 @@ import at.silverstrike.pcc.api.privatekeyreader.PrivateKeyReaderFactory;
 import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
 import at.silverstrike.pcc.impl.privatekeyreader.DefaultPrivateKeyReaderFactory;
 
-import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
-import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
-import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessTokenRequest;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.services.tasks.v1.Tasks;
 import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
 import com.google.gdata.client.authn.oauth.OAuthException;
 import com.google.gdata.client.authn.oauth.OAuthRsaSha1Signer;
@@ -61,6 +52,8 @@ import com.google.inject.Injector;
 import ru.altruix.commons.api.di.PccException;
 import ru.altruix.commons.impl.appendutils.AppendUtils;
 import co.altruix.pcc.api.cdm.PccMessage;
+import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporter;
+import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
 
@@ -102,6 +95,8 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
 
     private String allCalendarsFeedUrl;
 
+    private String clientId;
+    private String clientSecret;
 
     private File testerLogFilePath;
 
@@ -345,6 +340,21 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
     }
 
     private void importDataFromGoogleTasks(final UserData aUserData) {
+        final GoogleTasksImporterFactory factory =
+                this.injector.getInstance(GoogleTasksImporterFactory.class);
+        final GoogleTasksImporter importer = factory.create();
+
+        importer.setClientId(this.clientId);
+        importer.setClientSecret(this.clientSecret);
+        importer.setConsumerKey(this.consumerKey);
+        importer.setInjector(this.injector);
+        importer.setUser(aUserData);
+
+        try {
+            importer.run();
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
     }
 
     public void setInjector(final Injector aInjector) {
