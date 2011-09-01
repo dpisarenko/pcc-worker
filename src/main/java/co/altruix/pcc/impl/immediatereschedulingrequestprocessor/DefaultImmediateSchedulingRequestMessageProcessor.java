@@ -162,7 +162,6 @@ class DefaultImmediateSchedulingRequestMessageProcessor implements
         exporter.setAllCalendarsFeedUrl(this.allCalendarsFeedUrl);
         exporter.setCalendarScope(this.calendarScope);
         exporter.setConsumerKey(this.consumerKey);
-        exporter.setInjector(this.injector);
         exporter.setUser(aUser);
         exporter.setBookings(aBookings);
         
