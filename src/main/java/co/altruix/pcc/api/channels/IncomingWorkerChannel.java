@@ -11,9 +11,13 @@
 
 package co.altruix.pcc.api.channels;
 
-import co.altruix.pcc.api.cdm.PccMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
 
 public interface IncomingWorkerChannel extends WorkerChannel {    
+    boolean newPccMessagesAvailable();
+    ObjectMessage getNextPccMessage();
+    
     boolean newMessagesAvailable();
-    PccMessage getNextMessage();
+    Message getNextMessage();
 }

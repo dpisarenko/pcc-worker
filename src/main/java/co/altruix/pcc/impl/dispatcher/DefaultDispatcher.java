@@ -15,6 +15,9 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +47,11 @@ class DefaultDispatcher implements Dispatcher {
         this.selector.setTesterLogFilePath(this.testerLogFilePath);
         
         for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
-            if (curChannel.newMessagesAvailable()) {
-                final PccMessage curMessage = curChannel.getNextMessage();
+            if (curChannel.newPccMessagesAvailable()) {
+                final ObjectMessage message = curChannel.getNextPccMessage();
+                final PccMessage curMessage = (PccMessage)message;
 
-                selector.setMessage(curMessage);
+                selector.setPccMessage(curMessage);
                 selector.run();
 
                 final MessageProcessor processor =
@@ -62,10 +66,16 @@ class DefaultDispatcher implements Dispatcher {
 
                     LOGGER.info(
                             "Message processing result: {} on message '{}'",
-                            new Object[] { success, curMessage });
+                            new Object[] { success, curMessage });                    
                 } else {
                     LOGGER.error("Cannot process message '{}'", curMessage);
                 }
+            }
+            else if (curChannel.newMessagesAvailable())
+            {
+                final Message message = curChannel.getNextMessage();
+                
+                selector.setMessage(curChannel.getNextMessage());
             }
         }
     }

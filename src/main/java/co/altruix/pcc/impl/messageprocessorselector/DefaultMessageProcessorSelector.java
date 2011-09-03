@@ -13,6 +13,8 @@ package co.altruix.pcc.impl.messageprocessorselector;
 
 import java.io.File;
 
+import javax.jms.Message;
+
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
@@ -44,7 +46,7 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
         }
     }
 
-    public void setMessage(final PccMessage aMessage) {
+    public void setPccMessage(final PccMessage aMessage) {
         this.message = aMessage;
     }
 
@@ -66,5 +68,11 @@ class DefaultMessageProcessorSelector implements MessageProcessorSelector {
     public void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.immediateSchedulingRequestMessageProcessor
                 .setTesterLogFilePath(aTesterLogFilePath);
+    }
+
+    @Override
+    public void setMessage(final Message aMessage) {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -9,7 +9,7 @@
  *
  **/
 
-package co.altruix.pcc.api.immediatereschedulingrequestprocessor;
+package co.altruix.pcc.api.mailreschedulingrequestprocessor;
 
 import java.io.File;
 
@@ -17,9 +17,9 @@ import co.altruix.pcc.api.messageprocessor.MessageProcessor;
 
 /**
  * @author DP118M
- * 
+ *
  */
-public interface ImmediateSchedulingRequestMessageProcessor extends
+public interface MailReschedulingRequestMessageProcessor extends
         MessageProcessor {
     void setTaskJugglerPath(final String aTaskJugglerPath);
 
@@ -34,4 +34,5 @@ public interface ImmediateSchedulingRequestMessageProcessor extends
     void setConsumerKey(final String aConsumerKey);
     
     void setTesterLogFilePath(final File aTesterLogFilePath);
+
 }

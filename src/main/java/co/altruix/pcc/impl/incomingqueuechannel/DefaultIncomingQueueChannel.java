@@ -11,10 +11,14 @@
 
 package co.altruix.pcc.impl.incomingqueuechannel;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
@@ -30,40 +34,26 @@ import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannel;
  * @author DP118M
  * 
  */
-class DefaultIncomingQueueChannel implements IncomingQueueChannel {
+class DefaultIncomingQueueChannel implements IncomingQueueChannel,
+        MessageListener {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultIncomingQueueChannel.class);
 
     private Session session;
     private String queueName;
     private MessageConsumer consumer;
-    private PccMessage nextMessage;
 
-    public boolean newMessagesAvailable() {
-        this.nextMessage = null;
+    private List<ObjectMessage> pccMessages = new LinkedList<ObjectMessage>();
+    private List<Message> messages = new LinkedList<Message>();
 
-        Message message = null;
-        try {
-            message = this.consumer.receiveNoWait();
-
-            if ((message != null) && (message instanceof ObjectMessage)) {
-                final ObjectMessage objectMessage = (ObjectMessage) message;
-                final Object object = objectMessage.getObject();
-
-                if ((object != null) && (object instanceof PccMessage)) {
-                    this.nextMessage = (PccMessage) object;
-                }
-            }
-        } catch (final JMSException exception) {
-            this.nextMessage = null;
-            LOGGER.error("", exception);
-        }
-
-        return (this.nextMessage != null);
+    public boolean newPccMessagesAvailable() {
+        return this.pccMessages.size() > 0;
     }
 
-    public PccMessage getNextMessage() {
-        return this.nextMessage;
+    public ObjectMessage getNextPccMessage() {
+        final ObjectMessage returnValue = this.pccMessages.get(0);
+        this.pccMessages.remove(returnValue);
+        return returnValue;
     }
 
     public void init() throws PccException {
@@ -71,6 +61,7 @@ class DefaultIncomingQueueChannel implements IncomingQueueChannel {
             final Destination destination = session.createQueue(this.queueName);
 
             consumer = session.createConsumer(destination);
+            consumer.setMessageListener(this);
         } catch (final JMSException exception) {
             throw new PccException(exception);
         }
@@ -89,6 +80,37 @@ class DefaultIncomingQueueChannel implements IncomingQueueChannel {
             this.consumer.close();
         } catch (final JMSException exception) {
             throw new PccException(exception);
+        }
+    }
+
+    @Override
+    public boolean newMessagesAvailable() {
+        return this.messages.size() > 0;
+    }
+
+    @Override
+    public Message getNextMessage() {
+        final Message returnValue = this.messages.get(0);
+        this.messages.remove(returnValue);
+        return returnValue;
+
+    }
+
+    @Override
+    public void onMessage(final Message aMessage) {
+        try {
+            if (aMessage instanceof ObjectMessage) {
+                final ObjectMessage objectMessage = (ObjectMessage) aMessage;
+                final Object object = objectMessage.getObject();
+
+                if ((object != null) && (object instanceof PccMessage)) {
+                    this.pccMessages.add(objectMessage);
+                }
+            } else {
+                this.messages.add(aMessage);
+            }
+        } catch (final JMSException exception) {
+            LOGGER.error("", exception);
         }
     }
 
