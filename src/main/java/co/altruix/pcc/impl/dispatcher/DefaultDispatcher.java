@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
 
@@ -42,17 +43,19 @@ class DefaultDispatcher implements Dispatcher {
             new LinkedList<IncomingWorkerChannel>();
     private MessageProcessorSelector selector;
     private File testerLogFilePath;
-    
+
     public void run() throws PccException {
         this.selector.setTesterLogFilePath(this.testerLogFilePath);
-        
+
         for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
             if (curChannel.newPccMessagesAvailable()) {
                 final ObjectMessage message = curChannel.getNextPccMessage();
-                processObjectMessage(message);
-            }
-            else if (curChannel.newMessagesAvailable())
-            {
+                try {
+                    processObjectMessage(message);
+                } catch (final JMSException exception) {
+                    throw new PccException(exception);
+                }
+            } else if (curChannel.newMessagesAvailable()) {
                 final Message message = curChannel.getNextMessage();
                 processMessage(message);
             }
@@ -75,35 +78,42 @@ class DefaultDispatcher implements Dispatcher {
 
             LOGGER.info(
                     "Message processing result: {} on message '{}'",
-                    new Object[] { success, message });                    
+                    new Object[] { success, message });
         } else {
             LOGGER.error("Cannot process message '{}'", message);
         }
     }
 
     private void processObjectMessage(final ObjectMessage message)
-            throws PccException {
-        final PccMessage curMessage = (PccMessage)message;
+            throws PccException, JMSException {
+        final Object content = message.getObject();
 
-        selector.setPccMessage(curMessage);
-        selector.run();
+        if (content instanceof PccMessage) {
+            final PccMessage curMessage = (PccMessage) content;
 
-        final MessageProcessor processor =
-                selector.getMessageProcessor();
+            selector.setPccMessage(curMessage);
+            selector.run();
 
-        if (processor != null) {
-            processor.setPccMessage(curMessage);
-            processor.run();
+            final MessageProcessor processor =
+                    selector.getMessageProcessor();
 
-            final boolean success =
-                    processor.isMessageProcessingSucceeded();
+            if (processor != null) {
+                processor.setPccMessage(curMessage);
+                processor.run();
 
-            LOGGER.info(
-                    "Message processing result: {} on message '{}'",
-                    new Object[] { success, curMessage });                    
+                final boolean success =
+                        processor.isMessageProcessingSucceeded();
+
+                LOGGER.info(
+                        "Message processing result: {} on message '{}'",
+                        new Object[] { success, curMessage });
+            } else {
+                LOGGER.error("Cannot process message '{}'", curMessage);
+            }
         } else {
-            LOGGER.error("Cannot process message '{}'", curMessage);
+            LOGGER.error("Cannot process message '{}'", message);
         }
+
     }
 
     public void addIncomingChannel(final IncomingWorkerChannel aChannel) {
@@ -119,7 +129,7 @@ class DefaultDispatcher implements Dispatcher {
             this.selector.setInjector(aInjector);
         }
     }
-    
+
     @Override
     public void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.testerLogFilePath = aTesterLogFilePath;
