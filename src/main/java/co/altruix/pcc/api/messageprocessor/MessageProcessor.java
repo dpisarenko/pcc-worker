@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.api.messageprocessor;
 
+import javax.jms.Message;
+
 import co.altruix.pcc.api.cdm.PccMessage;
 import ru.altruix.commons.api.conventions.SingleActivityModule;
 import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
@@ -20,7 +22,7 @@ import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
  *
  */
 public interface MessageProcessor extends SingleActivityModule, ModuleWithInjectableDependencies {
-    void setMessage(final PccMessage aMessage);
-    
+    void setPccMessage(final PccMessage aMessage);
+    void setMessage(final Message aMessage);
     boolean isMessageProcessingSucceeded();
 }

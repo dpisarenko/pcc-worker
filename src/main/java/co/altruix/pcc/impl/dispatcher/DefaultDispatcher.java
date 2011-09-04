@@ -49,34 +49,60 @@ class DefaultDispatcher implements Dispatcher {
         for (final IncomingWorkerChannel curChannel : this.incomingChannels) {
             if (curChannel.newPccMessagesAvailable()) {
                 final ObjectMessage message = curChannel.getNextPccMessage();
-                final PccMessage curMessage = (PccMessage)message;
-
-                selector.setPccMessage(curMessage);
-                selector.run();
-
-                final MessageProcessor processor =
-                        selector.getMessageProcessor();
-
-                if (processor != null) {
-                    processor.setMessage(curMessage);
-                    processor.run();
-
-                    final boolean success =
-                            processor.isMessageProcessingSucceeded();
-
-                    LOGGER.info(
-                            "Message processing result: {} on message '{}'",
-                            new Object[] { success, curMessage });                    
-                } else {
-                    LOGGER.error("Cannot process message '{}'", curMessage);
-                }
+                processObjectMessage(message);
             }
             else if (curChannel.newMessagesAvailable())
             {
                 final Message message = curChannel.getNextMessage();
-                
-                selector.setMessage(curChannel.getNextMessage());
+                processMessage(message);
             }
+        }
+    }
+
+    private void processMessage(final Message message) throws PccException {
+        selector.setMessage(message);
+        selector.run();
+
+        final MessageProcessor processor =
+                selector.getMessageProcessor();
+
+        if (processor != null) {
+            processor.setMessage(message);
+            processor.run();
+
+            final boolean success =
+                    processor.isMessageProcessingSucceeded();
+
+            LOGGER.info(
+                    "Message processing result: {} on message '{}'",
+                    new Object[] { success, message });                    
+        } else {
+            LOGGER.error("Cannot process message '{}'", message);
+        }
+    }
+
+    private void processObjectMessage(final ObjectMessage message)
+            throws PccException {
+        final PccMessage curMessage = (PccMessage)message;
+
+        selector.setPccMessage(curMessage);
+        selector.run();
+
+        final MessageProcessor processor =
+                selector.getMessageProcessor();
+
+        if (processor != null) {
+            processor.setPccMessage(curMessage);
+            processor.run();
+
+            final boolean success =
+                    processor.isMessageProcessingSucceeded();
+
+            LOGGER.info(
+                    "Message processing result: {} on message '{}'",
+                    new Object[] { success, curMessage });                    
+        } else {
+            LOGGER.error("Cannot process message '{}'", curMessage);
         }
     }
 

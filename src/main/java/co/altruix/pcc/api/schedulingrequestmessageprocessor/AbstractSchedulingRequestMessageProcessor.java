@@ -27,7 +27,6 @@ import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
-import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporter;
@@ -51,7 +50,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     protected static final String START_CONFIRMATION_MESSAGE = "@{timestamp}: Started to calculate plan for user '@{userId}'"
                         + LINE_SEPARATOR;
     protected Persistence persistence;
-    private PccMessage message;
+    
     private Injector injector;
     private String taskJugglerPath;
     private String consumerKey;
@@ -65,9 +64,6 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     .getLogger(AbstractSchedulingRequestMessageProcessor.class);
 
     
-    public void setMessage(final PccMessage aMessage) {
-        this.message = aMessage;
-    }
 
     public boolean isMessageProcessingSucceeded() {
         return true;
@@ -190,9 +186,4 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     public void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.testerLogFilePath = aTesterLogFilePath;
     }
-
-    protected PccMessage getMessage() {
-        return message;
-    }
-
 }

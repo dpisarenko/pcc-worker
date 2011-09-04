@@ -14,6 +14,8 @@ package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
 import java.util.List;
 
+import javax.jms.Message;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,7 @@ import at.silverstrike.pcc.api.model.UserData;
 
 
 
+import co.altruix.pcc.api.cdm.PccMessage;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessor;
 import co.altruix.pcc.api.schedulingrequestmessageprocessor.AbstractSchedulingRequestMessageProcessor;
 import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
@@ -37,10 +40,11 @@ public class DefaultImmediateSchedulingRequestMessageProcessor extends
         ImmediateSchedulingRequestMessageProcessor {
     public static final Logger LOGGER = LoggerFactory
             .getLogger(DefaultImmediateSchedulingRequestMessageProcessor.class);
+    private PccMessage message;
     
     public void run() throws PccException {
         final DefaultImmediateSchedulingRequest request =
-                (DefaultImmediateSchedulingRequest) this.getMessage();
+                (DefaultImmediateSchedulingRequest) this.message;
     
         final UserData userData = persistence.getUser(request.getUserId());
         LOGGER.debug(
@@ -60,6 +64,16 @@ public class DefaultImmediateSchedulingRequestMessageProcessor extends
     
         sendConfirmationForTester(userData,
                 END_CONFIRMATION_MESSAGE);
+    }
+    public void setPccMessage(final PccMessage aMessage) {
+        this.message = aMessage;
+    }
+    
+    @Override
+    public void setMessage(final Message aMessage) {
+        /**
+         * We are interested in PccMessages only.
+         */
     }
 
 }
