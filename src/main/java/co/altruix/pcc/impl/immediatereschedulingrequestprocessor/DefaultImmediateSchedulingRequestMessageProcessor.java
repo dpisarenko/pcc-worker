@@ -35,7 +35,7 @@ import co.altruix.pcc.impl.cdm.DefaultImmediateSchedulingRequest;
  * @author DP118M
  * 
  */
-public class DefaultImmediateSchedulingRequestMessageProcessor extends
+public final class DefaultImmediateSchedulingRequestMessageProcessor extends
         AbstractSchedulingRequestMessageProcessor implements
         ImmediateSchedulingRequestMessageProcessor {
     public static final Logger LOGGER = LoggerFactory

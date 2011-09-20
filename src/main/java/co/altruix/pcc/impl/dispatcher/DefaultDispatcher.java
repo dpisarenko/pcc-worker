@@ -62,15 +62,15 @@ class DefaultDispatcher implements Dispatcher {
         }
     }
 
-    private void processMessage(final Message message) throws PccException {
-        selector.setMessage(message);
+    private void processMessage(final Message aMessage) throws PccException {
+        selector.setMessage(aMessage);
         selector.run();
 
         final MessageProcessor processor =
                 selector.getMessageProcessor();
 
         if (processor != null) {
-            processor.setMessage(message);
+            processor.setMessage(aMessage);
             processor.run();
 
             final boolean success =
@@ -78,15 +78,15 @@ class DefaultDispatcher implements Dispatcher {
 
             LOGGER.info(
                     "Message processing result: {} on message '{}'",
-                    new Object[] { success, message });
+                    new Object[] { success, aMessage });
         } else {
-            LOGGER.error("Cannot process message '{}'", message);
+            LOGGER.error("Cannot process message '{}'", aMessage);
         }
     }
 
-    private void processObjectMessage(final ObjectMessage message)
+    private void processObjectMessage(final ObjectMessage aMessage)
             throws PccException, JMSException {
-        final Object content = message.getObject();
+        final Object content = aMessage.getObject();
 
         if (content instanceof PccMessage) {
             final PccMessage curMessage = (PccMessage) content;
@@ -111,7 +111,7 @@ class DefaultDispatcher implements Dispatcher {
                 LOGGER.error("Cannot process message '{}'", curMessage);
             }
         } else {
-            LOGGER.error("Cannot process message '{}'", message);
+            LOGGER.error("Cannot process message '{}'", aMessage);
         }
 
     }

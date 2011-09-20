@@ -16,9 +16,10 @@ import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 
 /**
  * @author DP118M
- *
+ * 
  */
-public class DefaultPlanCalculatorFactory implements PlanCalculatorFactory {
+public final class DefaultPlanCalculatorFactory implements
+        PlanCalculatorFactory {
 
     @Override
     public PlanCalculator create() {
