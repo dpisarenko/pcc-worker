@@ -57,7 +57,8 @@ public final class PccWorkerApp {
         final Injector injector = initDependencyInjector(config);
 
         final Persistence persistence = injector.getInstance(Persistence.class);
-        persistence.openSession(Persistence.HOST_LOCAL, null, null, Persistence.DB_PRODUCTION);
+        persistence.openSession(Persistence.HOST_LOCAL, null, null,
+                Persistence.DB_PRODUCTION);
 
         final String brokerUrl = config.getProperty("brokerUrl");
         final String username = config.getProperty("username");
@@ -70,11 +71,16 @@ public final class PccWorkerApp {
 
         final IncomingQueueChannel web2workerQueue =
                 getWeb2WorkerQueue(config, injector, session);
-
+        final IncomingQueueChannel scheduler2workerQueue =
+                getScheduler2workerQueue(config, injector, session);
+        
         final Dispatcher dispatcher = getDispatcher(injector);
 
         dispatcher.addIncomingChannel(web2workerQueue);
-        dispatcher.setTesterLogFilePath(new File(config.getProperty("testerLogFilePath")));
+        dispatcher.addIncomingChannel(scheduler2workerQueue);
+        
+        dispatcher.setTesterLogFilePath(new File(config
+                .getProperty("testerLogFilePath")));
 
         setupShutdownHook(injector, session,
                 mqInitializer.getConnection(), new WorkerChannel[] {
@@ -93,6 +99,23 @@ public final class PccWorkerApp {
                 LOGGER.error("", exception);
             }
         }
+    }
+
+    private IncomingQueueChannel getScheduler2workerQueue(
+            final Properties config,
+            final Injector injector, final Session session) throws PccException {
+        final IncomingQueueChannelFactory channelFactory =
+                injector.getInstance(IncomingQueueChannelFactory.class);
+        final IncomingQueueChannel scheduler2workerQueue =
+                channelFactory.create();
+        final String scheduler2workerQueueName =
+                config.getProperty("scheduler2workerQueueName");
+
+        scheduler2workerQueue.setQueueName(scheduler2workerQueueName);
+        scheduler2workerQueue.setSession(session);
+        scheduler2workerQueue.init();
+        return scheduler2workerQueue;
+
     }
 
     private IncomingQueueChannel getWeb2WorkerQueue(final Properties config,
