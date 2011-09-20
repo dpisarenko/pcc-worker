@@ -26,11 +26,11 @@ public interface GoogleTasksImporter extends SingleActivityModule,
         ModuleWithInjectableDependencies {
     void setUser(final UserData aUser);
 
-    public abstract void setClientSecret(final String aClientSecret);
+    void setClientSecret(final String aClientSecret);
 
-    public abstract void setClientId(final String aClientId);
+    void setClientId(final String aClientId);
 
-    public abstract void setConsumerKey(final String aConsumerKey);
+    void setConsumerKey(final String aConsumerKey);
 
-    public abstract List<SchedulingObject> getCreatedTasks();
+    List<SchedulingObject> getCreatedTasks();
 }

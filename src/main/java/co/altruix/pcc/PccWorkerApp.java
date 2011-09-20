@@ -102,32 +102,32 @@ public final class PccWorkerApp {
     }
 
     private IncomingQueueChannel getScheduler2workerQueue(
-            final Properties config,
-            final Injector injector, final Session session) throws PccException {
+            final Properties aConfig,
+            final Injector aInjector, final Session aSession) throws PccException {
         final IncomingQueueChannelFactory channelFactory =
-                injector.getInstance(IncomingQueueChannelFactory.class);
+                aInjector.getInstance(IncomingQueueChannelFactory.class);
         final IncomingQueueChannel scheduler2workerQueue =
                 channelFactory.create();
         final String scheduler2workerQueueName =
-                config.getProperty("scheduler2workerQueueName");
+                aConfig.getProperty("scheduler2workerQueueName");
 
         scheduler2workerQueue.setQueueName(scheduler2workerQueueName);
-        scheduler2workerQueue.setSession(session);
+        scheduler2workerQueue.setSession(aSession);
         scheduler2workerQueue.init();
         return scheduler2workerQueue;
 
     }
 
-    private IncomingQueueChannel getWeb2WorkerQueue(final Properties config,
-            final Injector injector, final Session session) throws PccException {
+    private IncomingQueueChannel getWeb2WorkerQueue(final Properties aConfig,
+            final Injector aInjector, final Session aSession) throws PccException {
         final IncomingQueueChannelFactory channelFactory =
-                injector.getInstance(IncomingQueueChannelFactory.class);
+                aInjector.getInstance(IncomingQueueChannelFactory.class);
         final IncomingQueueChannel web2workerQueue = channelFactory.create();
 
         final String web2workerQueueName =
-                config.getProperty("web2workerQueueName");
+                aConfig.getProperty("web2workerQueueName");
         web2workerQueue.setQueueName(web2workerQueueName);
-        web2workerQueue.setSession(session);
+        web2workerQueue.setSession(aSession);
         web2workerQueue.init();
         return web2workerQueue;
     }

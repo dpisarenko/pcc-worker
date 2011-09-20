@@ -41,7 +41,6 @@ import com.google.inject.Injector;
  *
  */
 public abstract class AbstractSchedulingRequestMessageProcessor {
-
     protected static final String TIMESTAMP_FORMAT = "dd.MM.yyyy HH:mm:ss";
     protected static final String LINE_SEPARATOR = System
                 .getProperty("line.separator");
@@ -64,13 +63,12 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     .getLogger(AbstractSchedulingRequestMessageProcessor.class);
 
     
-
-    public boolean isMessageProcessingSucceeded() {
+    public final boolean isMessageProcessingSucceeded() {
         return true;
     }
 
 
-    protected void sendConfirmationForTester(final UserData aUser, final String aTemplate) {
+    protected final void sendConfirmationForTester(final UserData aUser, final String aTemplate) {
         try {
             final String[] searchList =
                     new String[] { "@{timestamp}", "@{userId}" };
@@ -92,7 +90,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
-    protected List<Booking> calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
+    protected final List<Booking> calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
     
         final PlanCalculatorFactory factory =
@@ -111,7 +109,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         return calculator.getBookings();
     }
 
-    protected void exportDataToGoogleCalendar(final UserData aUser, final List<Booking> aBookings) {
+    protected final void exportDataToGoogleCalendar(final UserData aUser, final List<Booking> aBookings) {
         final Exporter2GoogleCalendarFactory factory =
                 this.injector.getInstance(Exporter2GoogleCalendarFactory.class);
         final Exporter2GoogleCalendar exporter = factory.create();
@@ -129,7 +127,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         }
     }
 
-    protected List<SchedulingObject> importDataFromGoogleTasks(final UserData aUserData) {
+    protected final List<SchedulingObject> importDataFromGoogleTasks(final UserData aUserData) {
         final GoogleTasksImporterFactory factory =
                 this.injector.getInstance(GoogleTasksImporterFactory.class);
         final GoogleTasksImporter importer = factory.create();
@@ -151,7 +149,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         return createdTasks;
     }
 
-    public void setInjector(final Injector aInjector) {
+    public final void setInjector(final Injector aInjector) {
         if (aInjector != null) {
             this.persistence = aInjector.getInstance(Persistence.class);
     
@@ -159,31 +157,31 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         }
     }
 
-    public void setTaskJugglerPath(final String aTaskJugglerPath) {
+    public final void setTaskJugglerPath(final String aTaskJugglerPath) {
         this.taskJugglerPath = aTaskJugglerPath;
     }
 
-    public void setConsumerKey(final String aConsumerKey) {
+    public final void setConsumerKey(final String aConsumerKey) {
         this.consumerKey = aConsumerKey;
     }
 
-    public void setCalendarScope(final String aCalendarScope) {
+    public final void setCalendarScope(final String aCalendarScope) {
         this.calendarScope = aCalendarScope;
     }
 
-    public void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
+    public final void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
         this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
     }
 
-    public void setClientId(final String aClientId) {
+    public final void setClientId(final String aClientId) {
         this.clientId = aClientId;
     }
 
-    public void setClientSecret(final String aClientSecret) {
+    public final void setClientSecret(final String aClientSecret) {
         this.clientSecret = aClientSecret;
     }
 
-    public void setTesterLogFilePath(final File aTesterLogFilePath) {
+    public final void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.testerLogFilePath = aTesterLogFilePath;
     }
 }

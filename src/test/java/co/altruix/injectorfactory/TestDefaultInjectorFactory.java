@@ -28,7 +28,7 @@ import com.google.inject.Injector;
  * @author DP118M
  * 
  */
-public class TestDefaultInjectorFactory {
+public final class TestDefaultInjectorFactory {
     @Test
     public void test() {
         final InjectorFactory injectorFactory =

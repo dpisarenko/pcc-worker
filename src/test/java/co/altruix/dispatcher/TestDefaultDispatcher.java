@@ -27,7 +27,7 @@ import co.altruix.pcc.api.dispatcher.DispatcherFactory;
 
 import com.google.inject.Injector;
 
-public class TestDefaultDispatcher {
+public final class TestDefaultDispatcher {
     private static final Logger LOGGER = LoggerFactory
             .getLogger(TestDefaultDispatcher.class);
 
