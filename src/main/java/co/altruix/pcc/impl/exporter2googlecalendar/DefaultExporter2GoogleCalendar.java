@@ -140,32 +140,12 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                 curEvent.delete();
             }
 
-            LOGGER.debug("Bookings to export: {}", bookings.size());
-
-            for (final Booking curBooking : this.bookings) {
-                LOGGER.debug(
-                        "Exporting: start date time: {}, end date time: {}",
-                        new Object[] { curBooking.getStartDateTime(),
-                                curBooking.getEndDateTime() });
-
-                final CalendarEventEntry event = new CalendarEventEntry();
-
-                event.setTitle(new PlainTextConstruct(curBooking.getProcess()
-                        .getName()));
-
-                final When eventTime = new When();
-                final DateTime startDateTime =
-                        new DateTime(curBooking.getStartDateTime().getTime());
-                final DateTime endDateTime =
-                        new DateTime(curBooking.getEndDateTime().getTime());
-
-                eventTime.setStartTime(startDateTime);
-                eventTime.setEndTime(endDateTime);
-
-                event.addTime(eventTime);
-
-                calendarService.insert(pccCalendarUrl, event);
+            if (this.bookings != null)
+            {
+                LOGGER.debug("Bookings to export: {}", bookings.size());
+                exportBookings(calendarService, pccCalendarUrl);                
             }
+            
         } catch (final IOException exception) {
             LOGGER.error("", exception);
         } catch (final OAuthException exception) {
@@ -174,6 +154,34 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
             LOGGER.error("", exception);
         }
 
+    }
+
+    private void exportBookings(final CalendarService calendarService,
+            final URL pccCalendarUrl) throws IOException, ServiceException {
+        for (final Booking curBooking : this.bookings) {
+            LOGGER.debug(
+                    "Exporting: start date time: {}, end date time: {}",
+                    new Object[] { curBooking.getStartDateTime(),
+                            curBooking.getEndDateTime() });
+
+            final CalendarEventEntry event = new CalendarEventEntry();
+
+            event.setTitle(new PlainTextConstruct(curBooking.getProcess()
+                    .getName()));
+
+            final When eventTime = new When();
+            final DateTime startDateTime =
+                    new DateTime(curBooking.getStartDateTime().getTime());
+            final DateTime endDateTime =
+                    new DateTime(curBooking.getEndDateTime().getTime());
+
+            eventTime.setStartTime(startDateTime);
+            eventTime.setEndTime(endDateTime);
+
+            event.addTime(eventTime);
+
+            calendarService.insert(pccCalendarUrl, event);
+        }
     }
 
     private PrivateKey getPrivateKey() {
