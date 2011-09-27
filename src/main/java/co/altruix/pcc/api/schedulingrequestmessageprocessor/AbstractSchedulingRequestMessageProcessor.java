@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import ru.altruix.commons.api.di.PccException;
 import ru.altruix.commons.impl.appendutils.AppendUtils;
+import at.silverstrike.pcc.api.gtaskexporter.GoogleTasksExporter;
+import at.silverstrike.pcc.api.gtaskexporter.GoogleTasksExporterFactory;
 import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
@@ -38,18 +40,22 @@ import com.google.inject.Injector;
 
 /**
  * @author DP118M
- *
+ * 
  */
 public abstract class AbstractSchedulingRequestMessageProcessor {
+    private static final String DIAGNOSTIC_GTASKS_FILENAME =
+            "diagnostic_gtasks-yyyy-MM-dd___HH-mm-ss-SSS.csv";
     protected static final String TIMESTAMP_FORMAT = "dd.MM.yyyy HH:mm:ss";
     protected static final String LINE_SEPARATOR = System
                 .getProperty("line.separator");
-    protected static final String END_CONFIRMATION_MESSAGE = "@{timestamp}: Finished calculation of plan for user '@{userId}'"
+    protected static final String END_CONFIRMATION_MESSAGE =
+            "@{timestamp}: Finished calculation of plan for user '@{userId}'"
                         + LINE_SEPARATOR;
-    protected static final String START_CONFIRMATION_MESSAGE = "@{timestamp}: Started to calculate plan for user '@{userId}'"
+    protected static final String START_CONFIRMATION_MESSAGE =
+            "@{timestamp}: Started to calculate plan for user '@{userId}'"
                         + LINE_SEPARATOR;
     protected Persistence persistence;
-    
+
     private Injector injector;
     private String taskJugglerPath;
     private String consumerKey;
@@ -60,25 +66,24 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     private File testerLogFilePath;
 
     public static final Logger LOGGER = LoggerFactory
-    .getLogger(AbstractSchedulingRequestMessageProcessor.class);
+            .getLogger(AbstractSchedulingRequestMessageProcessor.class);
 
-    
     public final boolean isMessageProcessingSucceeded() {
         return true;
     }
 
-
-    protected final void sendConfirmationForTester(final UserData aUser, final String aTemplate) {
+    protected final void sendConfirmationForTester(final UserData aUser,
+            final String aTemplate) {
         try {
             final String[] searchList =
                     new String[] { "@{timestamp}", "@{userId}" };
             final String[] replacementList =
                     new String[] { getTimestamp(), Long.toString(aUser.getId()) };
-    
+
             final String confirmationMessage =
                     StringUtils.replaceEach(aTemplate, searchList,
                             replacementList);
-    
+
             AppendUtils.appendToFile(confirmationMessage,
                     this.testerLogFilePath);
         } catch (final IOException exception) {
@@ -90,13 +95,14 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         return new SimpleDateFormat(TIMESTAMP_FORMAT).format(new Date());
     }
 
-    protected final List<Booking> calculatePlan(final UserData aUser, final List<SchedulingObject> aCreatedTasks) {
+    protected final List<Booking> calculatePlan(final UserData aUser,
+            final List<SchedulingObject> aCreatedTasks) {
         LOGGER.debug("calculatePlan, user: {}", aUser.getId());
-    
+
         final PlanCalculatorFactory factory =
                 this.injector.getInstance(PlanCalculatorFactory.class);
         final PlanCalculator calculator = factory.create();
-    
+
         calculator.setSchedulingObjects(aCreatedTasks);
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
@@ -109,17 +115,18 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         return calculator.getBookings();
     }
 
-    protected final void exportDataToGoogleCalendar(final UserData aUser, final List<Booking> aBookings) {
+    protected final void exportDataToGoogleCalendar(final UserData aUser,
+            final List<Booking> aBookings) {
         final Exporter2GoogleCalendarFactory factory =
                 this.injector.getInstance(Exporter2GoogleCalendarFactory.class);
         final Exporter2GoogleCalendar exporter = factory.create();
-    
+
         exporter.setAllCalendarsFeedUrl(this.allCalendarsFeedUrl);
         exporter.setCalendarScope(this.calendarScope);
         exporter.setConsumerKey(this.consumerKey);
         exporter.setUser(aUser);
         exporter.setBookings(aBookings);
-    
+
         try {
             exporter.run();
         } catch (final PccException exception) {
@@ -127,32 +134,33 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         }
     }
 
-    protected final List<SchedulingObject> importDataFromGoogleTasks(final UserData aUserData) {
+    protected final List<SchedulingObject> importDataFromGoogleTasks(
+            final UserData aUserData) {
         final GoogleTasksImporterFactory factory =
                 this.injector.getInstance(GoogleTasksImporterFactory.class);
         final GoogleTasksImporter importer = factory.create();
         List<SchedulingObject> createdTasks = null;
-    
+
         importer.setClientId(this.clientId);
         importer.setClientSecret(this.clientSecret);
         importer.setConsumerKey(this.consumerKey);
         importer.setInjector(this.injector);
         importer.setUser(aUserData);
-    
+
         try {
             importer.run();
             createdTasks = importer.getCreatedTasks();
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
-    
+
         return createdTasks;
     }
 
     public final void setInjector(final Injector aInjector) {
         if (aInjector != null) {
             this.persistence = aInjector.getInstance(Persistence.class);
-    
+
             this.injector = aInjector;
         }
     }
@@ -183,5 +191,30 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
     public final void setTesterLogFilePath(final File aTesterLogFilePath) {
         this.testerLogFilePath = aTesterLogFilePath;
+    }
+
+    protected void exportTasksToFile(final UserData aUser) {
+        final GoogleTasksExporterFactory factory =
+                this.injector.getInstance(GoogleTasksExporterFactory.class);
+        final GoogleTasksExporter exporter = factory.create();
+
+        exporter.setClientId(this.clientId);
+        exporter.setClientSecret(this.clientSecret);
+        exporter.setConsumerKey(this.consumerKey);
+        exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
+        exporter.setTargetFile(getTimestampedFile());
+
+        try {
+            exporter.run();
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
+
+    }
+
+    private File getTimestampedFile() {
+        final SimpleDateFormat format =
+                new SimpleDateFormat(DIAGNOSTIC_GTASKS_FILENAME);
+        return new File(format.format(new Date()));
     }
 }
