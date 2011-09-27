@@ -52,7 +52,7 @@ public final class DefaultImmediateSchedulingRequestMessageProcessor extends
                 userData.getUsername());
     
         sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
-        exportTasksToFile();
+        exportTasksToFile(userData);
     
         final List<SchedulingObject> createdTasks =
                 importDataFromGoogleTasks(userData);
