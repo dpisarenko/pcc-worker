@@ -28,6 +28,7 @@ import at.silverstrike.pcc.api.persistence.Persistence;
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
+import ru.altruix.commons.impl.uncaughtexceptions.UncaughtExceptionHandler;
 import co.altruix.pcc.api.channels.WorkerChannel;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
@@ -50,6 +51,14 @@ public final class PccWorkerApp {
     }
 
     private void run() throws PccException {
+        /**
+         * Make sure that uncaught exceptions are logged (start)
+         */
+        Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler());
+        /**
+         * Make sure that uncaught exceptions are logged (end)
+         */
+
         final Properties config = readConfig();
 
         LOGGER.info("tj3Path: {}", config.getProperty("taskJugglerPath"));
@@ -73,12 +82,12 @@ public final class PccWorkerApp {
                 getWeb2WorkerQueue(config, injector, session);
         final IncomingQueueChannel scheduler2workerQueue =
                 getScheduler2workerQueue(config, injector, session);
-        
+
         final Dispatcher dispatcher = getDispatcher(injector);
 
         dispatcher.addIncomingChannel(web2workerQueue);
         dispatcher.addIncomingChannel(scheduler2workerQueue);
-        
+
         dispatcher.setTesterLogFilePath(new File(config
                 .getProperty("testerLogFilePath")));
 
@@ -103,7 +112,8 @@ public final class PccWorkerApp {
 
     private IncomingQueueChannel getScheduler2workerQueue(
             final Properties aConfig,
-            final Injector aInjector, final Session aSession) throws PccException {
+            final Injector aInjector, final Session aSession)
+            throws PccException {
         final IncomingQueueChannelFactory channelFactory =
                 aInjector.getInstance(IncomingQueueChannelFactory.class);
         final IncomingQueueChannel scheduler2workerQueue =
@@ -119,7 +129,8 @@ public final class PccWorkerApp {
     }
 
     private IncomingQueueChannel getWeb2WorkerQueue(final Properties aConfig,
-            final Injector aInjector, final Session aSession) throws PccException {
+            final Injector aInjector, final Session aSession)
+            throws PccException {
         final IncomingQueueChannelFactory channelFactory =
                 aInjector.getInstance(IncomingQueueChannelFactory.class);
         final IncomingQueueChannel web2workerQueue = channelFactory.create();
