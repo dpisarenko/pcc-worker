@@ -43,8 +43,10 @@ import com.google.inject.Injector;
  * 
  */
 public abstract class AbstractSchedulingRequestMessageProcessor {
+    private static final String DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE =
+            "diagnostic_gtasks-${timestamp}.csv";
     private static final String DIAGNOSTIC_GTASKS_FILENAME =
-            "diagnostic_gtasks-yyyy-MM-dd___HH-mm-ss-SSS.csv";
+            "yyyy-MM-dd___HH-mm-ss-SSS";
     protected static final String TIMESTAMP_FORMAT = "dd.MM.yyyy HH:mm:ss";
     protected static final String LINE_SEPARATOR = System
                 .getProperty("line.separator");
@@ -215,6 +217,9 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     private File getTimestampedFile() {
         final SimpleDateFormat format =
                 new SimpleDateFormat(DIAGNOSTIC_GTASKS_FILENAME);
-        return new File(format.format(new Date()));
+        final String fileName =
+                DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE.replace("${timestamp}",
+                        format.format(new Date()));
+        return new File(fileName);
     }
 }
