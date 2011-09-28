@@ -109,6 +109,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
         calculator.setTaskJugglerPath(this.taskJugglerPath);
+        
         try {
             calculator.run();
         } catch (final PccException exception) {
@@ -205,7 +206,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setConsumerKey(this.consumerKey);
         exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
         exporter.setTargetFile(getTimestampedFile());
-
+        
         try {
             exporter.run();
         } catch (final PccException exception) {
