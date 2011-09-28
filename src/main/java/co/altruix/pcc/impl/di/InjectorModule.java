@@ -24,6 +24,7 @@ import at.silverstrike.pcc.api.gtask2pcctaskconverter.GoogleTask2PccTaskConverte
 import at.silverstrike.pcc.api.gtaskexporter.GoogleTasksExporterFactory;
 import at.silverstrike.pcc.api.gtasknoteparser.GoogleTaskNotesParserFactory;
 import at.silverstrike.pcc.api.gtaskrelevance.IsGoogleTaskRelevantCalculatorFactory;
+import at.silverstrike.pcc.api.gtaskrelevance2.RelevantTaskSetCalculatorFactory;
 import at.silverstrike.pcc.api.gtasktitleparser.GoogleTaskTitleParserFactory;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import at.silverstrike.pcc.api.projectscheduler.ProjectScheduler;
@@ -39,6 +40,7 @@ import at.silverstrike.pcc.impl.gtask2pcctaskconverter.DefaultGoogleTask2PccTask
 import at.silverstrike.pcc.impl.gtaskexporter.DefaultGoogleTasksExporterFactory;
 import at.silverstrike.pcc.impl.gtasknoteparser.DefaultGoogleTaskNotesParserFactory;
 import at.silverstrike.pcc.impl.gtaskrelevance.DefaultIsGoogleTaskRelevantCalculatorFactory;
+import at.silverstrike.pcc.impl.gtaskrelevance2.DefaultRelevantTaskSetCalculatorFactory;
 import at.silverstrike.pcc.impl.gtasktitleparser.DefaultGoogleTaskTitleParserFactory;
 import at.silverstrike.pcc.impl.persistence.DefaultPersistence;
 import at.silverstrike.pcc.impl.projectscheduler.DefaultProjectSchedulerFactory;
@@ -135,7 +137,9 @@ class InjectorModule extends AbstractModule {
                 new DefaultExporter2GoogleCalendarFactory());
         interfacesByInstances.put(GoogleTasksExporterFactory.class,
                 new DefaultGoogleTasksExporterFactory());
-        
+        interfacesByInstances.put(RelevantTaskSetCalculatorFactory.class,
+                new DefaultRelevantTaskSetCalculatorFactory());
+
         for (final Class clazz : interfacesByInstances.keySet()) {
             final Object instance = interfacesByInstances.get(clazz);
 
