@@ -4,7 +4,7 @@
 
 	<groupId>co.altruix</groupId>
 	<artifactId>pcc-worker</artifactId>
-	<version>1.7</version>
+	<version>1.8</version>
 	<packaging>jar</packaging>
 
 	<name>pcc-worker</name>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>co.altruix</groupId>
 			<artifactId>pcc-logic</artifactId>
-			<version>1.7</version>
+			<version>1.8</version>
 		</dependency>
 
 		<dependency>
