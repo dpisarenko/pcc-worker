@@ -17,6 +17,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Injector;
+
+import at.silverstrike.pcc.impl.testutils.MockInjectorFactory;
+
 /**
  * @author DP118M
  * 
@@ -47,10 +51,15 @@ public class TestAbstractSchedulingRequestMessageProcessor {
      * </pre>
      */
     @Test
-    public void testSetPccMessageAndMessage() {
+    public void testExportToFile() {
+        final MockInjectorFactory injectorFactory =
+                new MockInjectorFactory(new MockInjectorModule());
+        final Injector injector = injectorFactory.createInjector();
+        
         try {
             final MockAbstractSchedulingRequestMessageProcessor objectUnderTest =
                     new MockAbstractSchedulingRequestMessageProcessor();
+            objectUnderTest.setInjector(injector);
             objectUnderTest.run();
         } catch (final Exception exception) {
             LOGGER.error("", exception);

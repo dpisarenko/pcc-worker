@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import ru.altruix.commons.api.di.InjectorFactory;
 import ru.altruix.commons.api.di.PccException;
 
+import at.silverstrike.pcc.impl.testutils.MockInjectorFactory;
 import co.altruix.pcc.api.dispatcher.Dispatcher;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
 
