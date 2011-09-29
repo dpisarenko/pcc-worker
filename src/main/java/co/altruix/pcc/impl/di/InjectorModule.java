@@ -58,6 +58,7 @@ import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
+import co.altruix.pcc.impl.booking2calendarevententry.DefaultBooking2CalendarEventEntryConverterFactory;
 import co.altruix.pcc.impl.dispatcher.DefaultDispatcherFactory;
 import co.altruix.pcc.impl.exporter2googlecalendar.DefaultExporter2GoogleCalendarFactory;
 import co.altruix.pcc.impl.googletasksimporter.DefaultGoogleTasksImporterFactory;
@@ -141,7 +142,7 @@ class InjectorModule extends AbstractModule {
         interfacesByInstances.put(RelevantTaskSetCalculatorFactory.class,
                 new DefaultRelevantTaskSetCalculatorFactory());
         interfacesByInstances.put(Booking2CalendarEventEntryConverterFactory.class,
-                new DefaultBookingsFile2BookingsFactory());
+                new DefaultBooking2CalendarEventEntryConverterFactory());
 
         for (final Class clazz : interfacesByInstances.keySet()) {
             final Object instance = interfacesByInstances.get(clazz);

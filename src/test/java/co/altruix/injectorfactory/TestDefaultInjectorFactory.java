@@ -49,6 +49,9 @@ public final class TestDefaultInjectorFactory {
 
             final Booking2CalendarEventEntryConverterFactory test =
                     injector.getInstance(Booking2CalendarEventEntryConverterFactory.class);
+            
+            Assert.assertNotNull(test);
+            
             injector.getInstance(BookingsFile2BookingsFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
