@@ -11,6 +11,8 @@
 
 package co.altruix.booking2calendarevententry;
 
+import java.util.Date;
+
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -47,6 +49,8 @@ public final class TestDefaultBooking2CalendarEventEntryConverter {
         final Booking booking = mockObjectFactory.createBooking();
         final Task task = mockObjectFactory.createTask();
 
+        booking.setStartDateTime(new Date());
+        booking.setDuration(1.);
         booking.setProcess(task);
 
         objectUnderTest.setBooking(booking);
