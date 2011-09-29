@@ -48,6 +48,12 @@ class DefaultPlanCalculator implements PlanCalculator {
 
     @Override
     public void run() throws PccException {
+        if (this.schedulingObjects == null)
+        {
+            LOGGER.error("schedulingObjects is null, exiting run method.");
+            return;
+        }
+        
         this.bookings = null;
         
         final Persistence persistence = this.injector.getInstance(Persistence.class);
