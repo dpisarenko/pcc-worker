@@ -31,10 +31,8 @@ import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
 import com.google.gdata.client.authn.oauth.OAuthException;
 import com.google.gdata.client.authn.oauth.OAuthRsaSha1Signer;
 import com.google.gdata.client.calendar.CalendarService;
-import com.google.gdata.data.calendar.CalendarEntry;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarEventFeed;
-import com.google.gdata.data.calendar.CalendarFeed;
 import com.google.gdata.util.ServiceException;
 import com.google.inject.Injector;
 
@@ -94,44 +92,14 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
             calendarService
                     .setOAuthCredentials(oauthParameters, signer);
 
-            final URL feedUrl =
+
+            final URL defaultCalendarUrl =
                     new URL(
-                            allCalendarsFeedUrl);
-            final CalendarFeed resultFeed =
-                    calendarService.getFeed(feedUrl, CalendarFeed.class);
-
-            LOGGER.debug("resultFeed: {}", resultFeed);
-
-            LOGGER.debug("Your calendars:");
-
-            CalendarEntry pccCalendar = null;
-            for (int i = 0; (i < resultFeed.getEntries().size())
-                    && (pccCalendar == null); i++) {
-                final CalendarEntry entry = resultFeed.getEntries().get(i);
-
-                if ("PCC".equals(entry.getTitle().getPlainText())) {
-                    pccCalendar = entry;
-                }
-            }
-
-            // Delete all events in the PCC calendar
-
-            LOGGER.debug(
-                    "PCC calendar: edit link='{}', self link='{}', content='{}', id='{}'",
-                    new Object[] { pccCalendar.getEditLink().getHref(),
-                            pccCalendar.getSelfLink().getHref(),
-                            pccCalendar.getContent(), pccCalendar.getId() });
-
-            final String calendarId =
-                    pccCalendar
-                            .getId()
-                            .substring(
-                                    "http://www.google.com/calendar/feeds/default/calendars/"
-                                            .length());
-            final URL calendarUrl = new URL(calendarId);
+                            "https://www.google.com/calendar/feeds/${email}/private/full"
+                                    .replace("${email}", user.getUsername()));
 
             final CalendarEventFeed pccEventFeed =
-                    calendarService.getFeed(calendarUrl,
+                    calendarService.getFeed(defaultCalendarUrl,
                             CalendarEventFeed.class);
             for (final CalendarEventEntry curEvent : pccEventFeed.getEntries()) {
                 if (curEvent
@@ -145,7 +113,7 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
 
             if (this.bookings != null) {
                 LOGGER.debug("Bookings to export: {}", bookings.size());
-                exportBookings(calendarService, calendarUrl);
+                exportBookings(calendarService, defaultCalendarUrl);
             }
         } catch (final IOException exception) {
             LOGGER.error("", exception);
