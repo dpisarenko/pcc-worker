@@ -129,6 +129,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setConsumerKey(this.consumerKey);
         exporter.setUser(aUser);
         exporter.setBookings(aBookings);
+        exporter.setInjector(this.injector);
 
         try {
             exporter.run();

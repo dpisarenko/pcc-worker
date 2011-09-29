@@ -29,16 +29,16 @@ import com.google.gdata.client.authn.oauth.GoogleOAuthParameters;
 import com.google.gdata.client.authn.oauth.OAuthException;
 import com.google.gdata.client.authn.oauth.OAuthRsaSha1Signer;
 import com.google.gdata.client.calendar.CalendarService;
-import com.google.gdata.data.DateTime;
-import com.google.gdata.data.PlainTextConstruct;
 import com.google.gdata.data.calendar.CalendarEntry;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.data.calendar.CalendarFeed;
-import com.google.gdata.data.extensions.When;
 import com.google.gdata.util.ServiceException;
+import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
+import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverter;
+import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
 
 /**
@@ -58,7 +58,9 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     private String allCalendarsFeedUrl;
 
     private List<Booking> bookings;
-    
+
+    private Injector injector;
+
     @Override
     public void run() throws PccException {
         try {
@@ -74,11 +76,11 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                     .getGoogleCalendarOAuthVerifier()); // Verifier from the
                                                         // interactive part
             oauthParameters.setOAuthToken(user.getGoogleCalendarOAuthToken()); // Access
-                                                                                // token
-                                                                                // from
-                                                                                // the
-                                                                                // interactive
-                                                                                // part
+                                                                               // token
+                                                                               // from
+                                                                               // the
+                                                                               // interactive
+                                                                               // part
             oauthParameters.setOAuthTokenSecret(user
                     .getGoogleCalendarOAuthTokenSecret()); // Token secret from
                                                            // the interactive
@@ -140,12 +142,11 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                 curEvent.delete();
             }
 
-            if (this.bookings != null)
-            {
+            if (this.bookings != null) {
                 LOGGER.debug("Bookings to export: {}", bookings.size());
-                exportBookings(calendarService, pccCalendarUrl);                
+                exportBookings(calendarService, new URL(calendarId));
             }
-            
+
         } catch (final IOException exception) {
             LOGGER.error("", exception);
         } catch (final OAuthException exception) {
@@ -157,28 +158,23 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     }
 
     private void exportBookings(final CalendarService calendarService,
-            final URL pccCalendarUrl) throws IOException, ServiceException {
+            final URL pccCalendarUrl) throws IOException, ServiceException,
+            PccException {
+        final Booking2CalendarEventEntryConverterFactory factory =
+                this.injector
+                        .getInstance(Booking2CalendarEventEntryConverterFactory.class);
+        final Booking2CalendarEventEntryConverter converter = factory.create();
+
         for (final Booking curBooking : this.bookings) {
             LOGGER.debug(
                     "Exporting: start date time: {}, end date time: {}",
                     new Object[] { curBooking.getStartDateTime(),
                             curBooking.getEndDateTime() });
 
-            final CalendarEventEntry event = new CalendarEventEntry();
+            converter.setBooking(curBooking);
+            converter.run();
 
-            event.setTitle(new PlainTextConstruct(curBooking.getProcess()
-                    .getName()));
-
-            final When eventTime = new When();
-            final DateTime startDateTime =
-                    new DateTime(curBooking.getStartDateTime().getTime());
-            final DateTime endDateTime =
-                    new DateTime(curBooking.getEndDateTime().getTime());
-
-            eventTime.setStartTime(startDateTime);
-            eventTime.setEndTime(endDateTime);
-
-            event.addTime(eventTime);
+            final CalendarEventEntry event = converter.getCalendarEventEntry();
 
             calendarService.insert(pccCalendarUrl, event);
         }
@@ -221,10 +217,15 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     public void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
         this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
     }
-    
+
     @Override
     public void setBookings(final List<Booking> aBookings) {
         this.bookings = aBookings;
+    }
+
+    @Override
+    public void setInjector(final Injector aInjector) {
+        this.injector = aInjector;
     }
 
 }
