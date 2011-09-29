@@ -19,6 +19,7 @@ import ru.altruix.commons.api.di.InjectorFactory;
 
 import at.silverstrike.pcc.api.gtaskexporter.GoogleTasksExporterFactory;
 import at.silverstrike.pcc.api.gtaskrelevance2.RelevantTaskSetCalculatorFactory;
+import at.silverstrike.pcc.api.tj3bookingsparser.BookingsFile2BookingsFactory;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
@@ -45,10 +46,14 @@ public final class TestDefaultInjectorFactory {
             injector.getInstance(Exporter2GoogleCalendarFactory.class);
             injector.getInstance(GoogleTasksExporterFactory.class);
             injector.getInstance(RelevantTaskSetCalculatorFactory.class);
-            injector.getInstance(Booking2CalendarEventEntryConverterFactory.class);
+
+            final Booking2CalendarEventEntryConverterFactory test =
+                    injector.getInstance(Booking2CalendarEventEntryConverterFactory.class);
+            injector.getInstance(BookingsFile2BookingsFactory.class);
         } catch (final ConfigurationException exception) {
             Assert.fail(exception.getMessage());
+        } catch (final ClassCastException exception) {
+            Assert.fail(exception.getMessage());
         }
-
     }
 }
