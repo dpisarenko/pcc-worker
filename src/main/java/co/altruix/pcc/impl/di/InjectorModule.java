@@ -47,6 +47,7 @@ import at.silverstrike.pcc.impl.projectscheduler.DefaultProjectSchedulerFactory;
 import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultBookingsFile2BookingsFactory;
 import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultTj3BookingsParserFactory;
 import at.silverstrike.pcc.impl.tj3deadlinesparser.DefaultTj3DeadlinesFileParserFactory;
+import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
@@ -139,6 +140,8 @@ class InjectorModule extends AbstractModule {
                 new DefaultGoogleTasksExporterFactory());
         interfacesByInstances.put(RelevantTaskSetCalculatorFactory.class,
                 new DefaultRelevantTaskSetCalculatorFactory());
+        interfacesByInstances.put(Booking2CalendarEventEntryConverterFactory.class,
+                new DefaultBookingsFile2BookingsFactory());
 
         for (final Class clazz : interfacesByInstances.keySet()) {
             final Object instance = interfacesByInstances.get(clazz);
