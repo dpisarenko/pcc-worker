@@ -11,6 +11,8 @@
 
 package co.altruix.pcc.impl.exporter2googlecalendar;
 
+import static co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverter.PCC_EVENT_MARKER;
+
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivateKey;
@@ -126,27 +128,25 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                             .substring(
                                     "http://www.google.com/calendar/feeds/default/calendars/"
                                             .length());
-            final URL pccCalendarUrl =
-                    new URL(
-                            "https://www.google.com/calendar/feeds/${calendarId}/private/full"
-                                    .replace("${calendarId}", calendarId));
-
-            LOGGER.debug("pccCalendarUrl: {}", pccCalendarUrl);
-            // calendarService.getFeed(feedUrl, feedClass)
+            final URL calendarUrl = new URL(calendarId);
 
             final CalendarEventFeed pccEventFeed =
-                    calendarService.getFeed(pccCalendarUrl,
+                    calendarService.getFeed(calendarUrl,
                             CalendarEventFeed.class);
             for (final CalendarEventEntry curEvent : pccEventFeed.getEntries()) {
-                LOGGER.debug("Deleting event ''", curEvent);
-                curEvent.delete();
+                if (curEvent
+                        .getTitle()
+                        .getPlainText()
+                        .endsWith(
+                                PCC_EVENT_MARKER)) {
+                    curEvent.delete();
+                }
             }
 
             if (this.bookings != null) {
                 LOGGER.debug("Bookings to export: {}", bookings.size());
-                exportBookings(calendarService, new URL(calendarId));
+                exportBookings(calendarService, calendarUrl);
             }
-
         } catch (final IOException exception) {
             LOGGER.error("", exception);
         } catch (final OAuthException exception) {
@@ -154,7 +154,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
         } catch (final ServiceException exception) {
             LOGGER.error("", exception);
         }
-
     }
 
     private void exportBookings(final CalendarService calendarService,

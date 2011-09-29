@@ -22,7 +22,7 @@ import ru.altruix.commons.api.conventions.SingleActivityModule;
  */
 public interface Booking2CalendarEventEntryConverter extends
         SingleActivityModule {
-    final String PCC_EVENT_MARKER = "#PCC";
+    final String PCC_EVENT_MARKER = " #PCC";
     
     void setBooking(final Booking aBooking);
     CalendarEventEntry getCalendarEventEntry();
