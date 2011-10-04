@@ -24,7 +24,7 @@ import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryC
 import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverterFactory;
 import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
-import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporter;
+import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporterFactory;
 import co.altruix.pcc.api.outgoingqueuechannel.OutgoingQueueChannelFactory;
 import co.altruix.pcc.impl.di.DefaultPccWorkerInjectorFactory;
 
@@ -50,7 +50,7 @@ public final class TestDefaultInjectorFactory {
             injector.getInstance(GoogleTasksExporterFactory.class);
             injector.getInstance(RelevantTaskSetCalculatorFactory.class);
             injector.getInstance(ExistingEventsFilterFactory.class);
-            injector.getInstance(GoogleCalendarEventImporter.class);
+            injector.getInstance(GoogleCalendarEventImporterFactory.class);
             injector.getInstance(CalendarEventEntry2PccEventConverterFactory.class);
             
             final Booking2CalendarEventEntryConverterFactory test =

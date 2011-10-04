@@ -48,8 +48,11 @@ import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultBookingsFile2BookingsFa
 import at.silverstrike.pcc.impl.tj3bookingsparser.DefaultTj3BookingsParserFactory;
 import at.silverstrike.pcc.impl.tj3deadlinesparser.DefaultTj3DeadlinesFileParserFactory;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
+import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverterFactory;
 import co.altruix.pcc.api.dispatcher.DispatcherFactory;
+import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
+import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporterFactory;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.immediatereschedulingrequestprocessor.ImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.api.messageprocessorselector.MessageProcessorSelectorFactory;
@@ -59,8 +62,11 @@ import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 import co.altruix.pcc.api.incomingqueuechannel.IncomingQueueChannelFactory;
 import co.altruix.pcc.api.shutdownhook.ShutdownHookFactory;
 import co.altruix.pcc.impl.booking2calendarevententry.DefaultBooking2CalendarEventEntryConverterFactory;
+import co.altruix.pcc.impl.calendarevent2pcceventconverter.DefaultCalendarEventEntry2PccEventConverterFactory;
 import co.altruix.pcc.impl.dispatcher.DefaultDispatcherFactory;
+import co.altruix.pcc.impl.existingeventsfilter.DefaultExistingEventsFilterFactory;
 import co.altruix.pcc.impl.exporter2googlecalendar.DefaultExporter2GoogleCalendarFactory;
+import co.altruix.pcc.impl.gcaleventimporter.DefaultGoogleCalendarEventImporterFactory;
 import co.altruix.pcc.impl.googletasksimporter.DefaultGoogleTasksImporterFactory;
 import co.altruix.pcc.impl.immediatereschedulingrequestprocessor.DefaultImmediateSchedulingRequestMessageProcessorFactory;
 import co.altruix.pcc.impl.messageprocessorselector.DefaultMessageProcessorSelectorFactory;
@@ -143,6 +149,12 @@ class InjectorModule extends AbstractModule {
                 new DefaultRelevantTaskSetCalculatorFactory());
         interfacesByInstances.put(Booking2CalendarEventEntryConverterFactory.class,
                 new DefaultBooking2CalendarEventEntryConverterFactory());
+        interfacesByInstances.put(ExistingEventsFilterFactory.class,
+                new DefaultExistingEventsFilterFactory());
+        interfacesByInstances.put(GoogleCalendarEventImporterFactory.class,
+                new DefaultGoogleCalendarEventImporterFactory());
+        interfacesByInstances.put(CalendarEventEntry2PccEventConverterFactory.class,
+                new DefaultCalendarEventEntry2PccEventConverterFactory());
 
         for (final Class clazz : interfacesByInstances.keySet()) {
             final Object instance = interfacesByInstances.get(clazz);
