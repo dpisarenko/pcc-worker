@@ -148,6 +148,9 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     }
 
     private void deleteEvents() {
+        if (this.eventsToDelete == null) {
+            return;
+        }
         for (final CalendarEventEntry curEventEntry : this.eventsToDelete) {
             try {
                 curEventEntry.delete();
