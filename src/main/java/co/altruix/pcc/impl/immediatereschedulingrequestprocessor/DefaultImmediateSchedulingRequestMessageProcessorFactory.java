@@ -36,8 +36,6 @@ public final class DefaultImmediateSchedulingRequestMessageProcessorFactory
         final ImmediateSchedulingRequestMessageProcessor returnValue =
                 new DefaultImmediateSchedulingRequestMessageProcessor();
 
-        returnValue.setAllCalendarsFeedUrl(this.configuration
-                .getProperty("allCalendarsFeedUrl"));
         returnValue.setCalendarScope(this.configuration
                 .getProperty("calendarScope"));
         returnValue.setClientId(this.configuration.getProperty("clientId"));

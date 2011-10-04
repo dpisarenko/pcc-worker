@@ -27,8 +27,6 @@ public interface ImmediateSchedulingRequestMessageProcessor extends
 
     void setClientId(final String aClientId);
 
-    void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl);
-
     void setCalendarScope(final String aCalendarScope);
 
     void setConsumerKey(final String aConsumerKey);

@@ -58,7 +58,6 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
                     .getTitle()
                     .getPlainText()
                     .endsWith(PCC_EVENT_MARKER)) {
-
                 this.eventsToDelete.add(curEvent);
             } else {
                 this.eventsToImport.add(curEvent);

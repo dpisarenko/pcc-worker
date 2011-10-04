@@ -11,8 +11,6 @@
 
 package co.altruix.pcc.impl.exporter2googlecalendar;
 
-import static co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverter.PCC_EVENT_MARKER;
-
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivateKey;
@@ -32,15 +30,12 @@ import com.google.gdata.client.authn.oauth.OAuthException;
 import com.google.gdata.client.authn.oauth.OAuthRsaSha1Signer;
 import com.google.gdata.client.calendar.CalendarService;
 import com.google.gdata.data.calendar.CalendarEventEntry;
-import com.google.gdata.data.calendar.CalendarEventFeed;
 import com.google.gdata.util.ServiceException;
 import com.google.inject.Injector;
 
 import ru.altruix.commons.api.di.PccException;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverter;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
-import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilter;
-import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
 
 /**
@@ -56,8 +51,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     private String calendarScope;
 
     private UserData user;
-
-    private String allCalendarsFeedUrl;
 
     private List<Booking> bookings;
 
@@ -99,30 +92,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
                     new URL(
                             "https://www.google.com/calendar/feeds/${email}/private/full"
                                     .replace("${email}", user.getUsername()));
-
-            final CalendarEventFeed pccEventFeed =
-                    calendarService.getFeed(defaultCalendarUrl,
-                            CalendarEventFeed.class);
-            
-            final ExistingEventsFilterFactory factory = this.injector.getInstance(ExistingEventsFilterFactory.class);
-            final ExistingEventsFilter eventFilter = factory.create();
-            
-            eventFilter.setExistingEvents(pccEventFeed.getEntries());
-            eventFilter.run();
-            
-            for (final CalendarEventEntry curEvent : eventFilter.getEventsToDelete()) {
-                curEvent.delete();
-            }
-            
-//            for (final CalendarEventEntry curEvent : pccEventFeed.getEntries()) {
-//                if (curEvent
-//                        .getTitle()
-//                        .getPlainText()
-//                        .endsWith(
-//                                PCC_EVENT_MARKER)) {
-//                    curEvent.delete();
-//                }
-//            }
 
             if (this.bookings != null) {
                 LOGGER.debug("Bookings to export: {}", bookings.size());
@@ -191,11 +160,6 @@ class DefaultExporter2GoogleCalendar implements Exporter2GoogleCalendar {
     @Override
     public void setUser(final UserData aUser) {
         this.user = aUser;
-    }
-
-    @Override
-    public void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
-        this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
     }
 
     @Override

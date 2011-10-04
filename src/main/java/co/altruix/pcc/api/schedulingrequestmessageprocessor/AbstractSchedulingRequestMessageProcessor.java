@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,13 +30,19 @@ import at.silverstrike.pcc.api.model.Booking;
 import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
+import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverter;
+import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
+import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporter;
+import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporterFactory;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporter;
 import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 import co.altruix.pcc.api.plancalculator.PlanCalculator;
 import co.altruix.pcc.api.plancalculator.PlanCalculatorFactory;
 
+import com.google.gdata.data.calendar.CalendarEventEntry;
+import com.google.gdata.util.ServiceException;
 import com.google.inject.Injector;
 
 /**
@@ -62,13 +69,13 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     private String taskJugglerPath;
     private String consumerKey;
     private String calendarScope;
-    private String allCalendarsFeedUrl;
     private String clientId;
     private String clientSecret;
     private File testerLogFilePath;
 
     public static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractSchedulingRequestMessageProcessor.class);
+    private List<CalendarEventEntry> eventsToDelete;
 
     public final boolean isMessageProcessingSucceeded() {
         return true;
@@ -109,7 +116,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
         calculator.setTaskJugglerPath(this.taskJugglerPath);
-        
+
         try {
             calculator.run();
         } catch (final PccException exception) {
@@ -120,16 +127,18 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
     protected final void exportDataToGoogleCalendar(final UserData aUser,
             final List<Booking> aBookings) {
+        deleteEvents();
+
         final Exporter2GoogleCalendarFactory factory =
                 this.injector.getInstance(Exporter2GoogleCalendarFactory.class);
         final Exporter2GoogleCalendar exporter = factory.create();
 
-        exporter.setAllCalendarsFeedUrl(this.allCalendarsFeedUrl);
         exporter.setCalendarScope(this.calendarScope);
         exporter.setConsumerKey(this.consumerKey);
         exporter.setUser(aUser);
         exporter.setBookings(aBookings);
         exporter.setInjector(this.injector);
+        exporter.setUser(aUser);
 
         try {
             exporter.run();
@@ -138,7 +147,70 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         }
     }
 
+    private void deleteEvents() {
+        for (final CalendarEventEntry curEventEntry : this.eventsToDelete) {
+            try {
+                curEventEntry.delete();
+            } catch (final IOException exception) {
+                LOGGER.error("", exception);
+            } catch (final ServiceException exception) {
+                LOGGER.error("", exception);
+            }
+        }
+    }
+
     protected final List<SchedulingObject> importDataFromGoogleTasks(
+            final UserData aUserData) {
+        final List<SchedulingObject> importedTasks =
+                getTasksFromGoogleTasks(aUserData);
+
+        final GoogleCalendarEventImporterFactory factory =
+                this.injector
+                        .getInstance(GoogleCalendarEventImporterFactory.class);
+        final GoogleCalendarEventImporter eventImporter = factory.create();
+
+        eventImporter.setCalendarScope(this.calendarScope);
+        eventImporter.setConsumerKey(this.consumerKey);
+
+        try {
+            eventImporter.run();
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
+        eventsToDelete = eventImporter.getEventsToDelete();
+        final List<CalendarEventEntry> calendarEventEntriesToImport =
+                eventImporter.getEventsToImport();
+
+        final List<SchedulingObject> importedEvents =
+                convertCalendarEventEntriesToPccEvents(calendarEventEntriesToImport);
+
+        final List<SchedulingObject> returnValue =
+                new LinkedList<SchedulingObject>();
+        returnValue.addAll(importedTasks);
+        returnValue.addAll(importedEvents);
+
+        return returnValue;
+    }
+
+    private List<SchedulingObject> convertCalendarEventEntriesToPccEvents(
+            final List<CalendarEventEntry> calendarEventEntriesToImport) {
+        final CalendarEventEntry2PccEventConverterFactory converterFactory =
+                this.injector
+                        .getInstance(CalendarEventEntry2PccEventConverterFactory.class);
+        final CalendarEventEntry2PccEventConverter converter =
+                converterFactory.create();
+
+        converter.setCalendarEventEntries(calendarEventEntriesToImport);
+        try {
+            converter.run();
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
+        final List<SchedulingObject> importedEvents = converter.getPccEvents();
+        return importedEvents;
+    }
+
+    private List<SchedulingObject> getTasksFromGoogleTasks(
             final UserData aUserData) {
         final GoogleTasksImporterFactory factory =
                 this.injector.getInstance(GoogleTasksImporterFactory.class);
@@ -157,7 +229,6 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         } catch (final PccException exception) {
             LOGGER.error("", exception);
         }
-
         return createdTasks;
     }
 
@@ -179,10 +250,6 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
     public final void setCalendarScope(final String aCalendarScope) {
         this.calendarScope = aCalendarScope;
-    }
-
-    public final void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl) {
-        this.allCalendarsFeedUrl = aAllCalendarsFeedUrl;
     }
 
     public final void setClientId(final String aClientId) {
@@ -207,7 +274,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setConsumerKey(this.consumerKey);
         exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
         exporter.setTargetFile(getTimestampedFile());
-        
+
         try {
             exporter.run();
         } catch (final PccException exception) {

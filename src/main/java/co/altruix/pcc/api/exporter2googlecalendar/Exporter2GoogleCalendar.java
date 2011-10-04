@@ -24,8 +24,6 @@ import ru.altruix.commons.api.di.ModuleWithInjectableDependencies;
  */
 public interface Exporter2GoogleCalendar extends SingleActivityModule, ModuleWithInjectableDependencies {
 
-    void setAllCalendarsFeedUrl(final String aAllCalendarsFeedUrl);
-
     void setUser(final UserData aUser);
 
     void setCalendarScope(final String aCalendarScope);
