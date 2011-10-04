@@ -88,8 +88,8 @@ public final class TestDefaultExistingEventsFilter {
         
         Assert.assertNotNull(eventsToImport);
         Assert.assertEquals(2, eventsToImport.size());
-        Assert.assertTrue(eventsToDelete.contains(entryWithoutPccTag1));
-        Assert.assertTrue(eventsToDelete.contains(entryWithoutPccTag2));
+        Assert.assertTrue(eventsToImport.contains(entryWithoutPccTag1));
+        Assert.assertTrue(eventsToImport.contains(entryWithoutPccTag2));
     }
 
     private CalendarEventEntry getCalendarEntry(final String aName) {
