@@ -171,7 +171,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
         eventImporter.setCalendarScope(this.calendarScope);
         eventImporter.setConsumerKey(this.consumerKey);
-
+        eventImporter.setUser(aUserData);
         try {
             eventImporter.run();
         } catch (final PccException exception) {
