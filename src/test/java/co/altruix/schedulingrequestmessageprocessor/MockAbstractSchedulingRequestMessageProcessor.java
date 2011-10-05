@@ -11,6 +11,8 @@
 
 package co.altruix.schedulingrequestmessageprocessor;
 
+import java.util.Date;
+
 import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.impl.mockpersistence.MockObjectFactory;
 import co.altruix.pcc.api.schedulingrequestmessageprocessor.AbstractSchedulingRequestMessageProcessor;
@@ -31,6 +33,6 @@ final class MockAbstractSchedulingRequestMessageProcessor extends
         user.setGoogleCalendarOAuthVerifier(null);
         user.setGoogleTasksRefreshToken(null);
         
-        exportTasksToFile(user);
+        exportTasksToFile(user, new Date());
     }
 }

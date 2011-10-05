@@ -273,7 +273,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         this.testerLogFilePath = aTesterLogFilePath;
     }
 
-    protected void exportTasksToFile(final UserData aUser) {
+    protected void exportTasksToFile(final UserData aUser, final Date aTime) {
         final GoogleTasksExporterFactory factory =
                 this.injector.getInstance(GoogleTasksExporterFactory.class);
         final GoogleTasksExporter exporter = factory.create();
@@ -282,7 +282,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setClientSecret(this.clientSecret);
         exporter.setConsumerKey(this.consumerKey);
         exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
-        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE));
+        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE, aTime));
 
         try {
             exporter.run();
@@ -292,22 +292,22 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
     }
 
-    private File getTimestampedFile(String aTemplate) {
+    private File getTimestampedFile(final String aTemplate, final Date aTime) {
         final SimpleDateFormat format =
                 new SimpleDateFormat(DIAGNOSTIC_GTASKS_FILENAME);
         final String fileName =
                 aTemplate.replace("${timestamp}",
-                        format.format(new Date()));
+                        format.format(aTime));
         return new File(fileName);
     }
 
-    protected void exportEventsToImport() {
+    protected void exportEventsToImport(final Date aTime) {
         final EventExporterFactory factory =
                 this.injector.getInstance(EventExporterFactory.class);
         final EventExporter exporter = factory.create();
         
         exporter.setEventsToExport(eventsToImport);
-        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE));
+        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE, aTime));
         try {
             exporter.run();
         } catch (final PccException exception) {

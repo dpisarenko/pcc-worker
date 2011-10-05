@@ -12,6 +12,7 @@
 package co.altruix.pcc.impl.immediatereschedulingrequestprocessor;
 
 
+import java.util.Date;
 import java.util.List;
 
 import javax.jms.Message;
@@ -52,11 +53,14 @@ public final class DefaultImmediateSchedulingRequestMessageProcessor extends
                 userData.getUsername());
     
         sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
-        exportTasksToFile(userData);
-        exportEventsToImport();
-    
+        final Date now = new Date();
+        exportTasksToFile(userData, now);
+        
         final List<SchedulingObject> createdTasks =
                 importDataFromGoogleTasks(userData);
+        
+        exportEventsToImport(now);
+        
         final List<Booking> bookings = calculatePlan(userData, createdTasks);
         exportDataToGoogleCalendar(userData, bookings);
     
