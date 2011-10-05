@@ -11,6 +11,7 @@
 
 package co.altruix.pcc.api.existingeventsfilter;
 
+import java.util.Date;
 import java.util.List;
 
 import com.google.gdata.data.calendar.CalendarEventEntry;
@@ -23,6 +24,7 @@ import ru.altruix.commons.api.conventions.SingleActivityModule;
  */
 public interface ExistingEventsFilter extends SingleActivityModule {
     void setExistingEvents(final List<CalendarEventEntry> aEvents);
+    void setNow(final Date aNow);
     List<CalendarEventEntry> getEventsToDelete();
     List<CalendarEventEntry> getEventsToImport();
 }

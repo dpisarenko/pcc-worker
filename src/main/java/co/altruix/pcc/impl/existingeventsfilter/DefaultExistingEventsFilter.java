@@ -13,6 +13,7 @@ package co.altruix.pcc.impl.existingeventsfilter;
 
 import static co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverter.PCC_EVENT_MARKER;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -30,7 +31,8 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
     private List<CalendarEventEntry> existingEvents;
     private List<CalendarEventEntry> eventsToDelete;
     private List<CalendarEventEntry> eventsToImport;
-
+    private Date now;
+    
     public List<CalendarEventEntry> getEventsToDelete() {
         return eventsToDelete;
     }
@@ -63,5 +65,10 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
                 this.eventsToImport.add(curEvent);
             }
         }
+    }
+    
+    @Override
+    public void setNow(final Date aNow) {
+        this.now = aNow;
     }
 }

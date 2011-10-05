@@ -14,6 +14,7 @@ package co.altruix.pcc.impl.gcaleventimporter;
 import java.io.IOException;
 import java.net.URL;
 import java.security.PrivateKey;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -101,6 +102,7 @@ final class DefaultGoogleCalendarEventImporter implements
             final ExistingEventsFilter eventFilter = factory.create();
 
             eventFilter.setExistingEvents(pccEventFeed.getEntries());
+            eventFilter.setNow(new Date());
             eventFilter.run();
 
             this.eventsToDelete = eventFilter.getEventsToDelete();
