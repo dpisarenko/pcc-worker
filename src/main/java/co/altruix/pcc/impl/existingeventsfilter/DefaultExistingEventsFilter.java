@@ -70,10 +70,15 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
     }
 
     private boolean eventInFuture(final CalendarEventEntry aEvent) {
-        final DateTime startDateTime = aEvent.getTimes().get(0).getStartTime();
-        final Date startTime = new Date(startDateTime.getValue());
+        if ((aEvent.getTimes().size() > 0) && (this.now != null)) {
+            final DateTime startDateTime =
+                    aEvent.getTimes().get(0).getStartTime();
+            final Date startTime = new Date(startDateTime.getValue());
 
-        return startTime.after(this.now);
+            return startTime.after(this.now);
+        } else {
+            return false;
+        }
     }
 
     @Override

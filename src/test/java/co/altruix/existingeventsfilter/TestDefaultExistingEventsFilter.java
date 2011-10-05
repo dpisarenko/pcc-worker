@@ -65,10 +65,18 @@ public final class TestDefaultExistingEventsFilter {
 
         inputEvents.add(entryWithoutPccTag1);
         inputEvents.add(entryWithoutPccTag2);
+        
+        final Date now = new Date();
+        final When twoDaysInFuture = getTime2DaysInFutureOrPast(now, 2);
+        entryWithoutPccTag1.getTimes().add(twoDaysInFuture);
+        entryWithoutPccTag2.getTimes().add(twoDaysInFuture);
+        
+        
         inputEvents.add(entryWithPccTag1);
         inputEvents.add(entryWithPccTag2);
         inputEvents.add(entryWithPccTag3);
 
+        objectUnderTest.setNow(now);
         objectUnderTest.setExistingEvents(inputEvents);
 
         try {
@@ -107,21 +115,21 @@ public final class TestDefaultExistingEventsFilter {
 
         final CalendarEventEntry entryWithoutPccTag1 =
                 getCalendarEntry("Bla-bla-bla 1");
-        
+
         final CalendarEventEntry entryWithoutPccTag2 =
                 getCalendarEntry("Bla-bla-bla 2");
 
         final When twoDaysInFuture = getTime2DaysInFutureOrPast(now, 2);
         entryWithoutPccTag1.getTimes().add(twoDaysInFuture);
-        
+
         final When twoDaysInPast = getTime2DaysInFutureOrPast(now, -2);
         entryWithoutPccTag2.getTimes().add(twoDaysInPast);
-        
+
         inputEvents.add(entryWithoutPccTag1);
         inputEvents.add(entryWithoutPccTag2);
 
         objectUnderTest.setExistingEvents(inputEvents);
-
+        objectUnderTest.setNow(now);
         try {
             objectUnderTest.run();
         } catch (final PccException exception) {
@@ -139,7 +147,38 @@ public final class TestDefaultExistingEventsFilter {
 
     }
 
-    private When getTime2DaysInFutureOrPast(final Date aNow, final int aDaysToAdd) {
+    @Test
+    public void testOnNowNull() {
+        final ExistingEventsFilterFactory factory =
+                new DefaultExistingEventsFilterFactory();
+        final ExistingEventsFilter objectUnderTest = factory.create();
+        final List<CalendarEventEntry> inputEvents =
+                new LinkedList<CalendarEventEntry>();
+
+        final CalendarEventEntry entryWithoutPccTag1 =
+                getCalendarEntry("Bla-bla-bla 1");
+
+        final When twoDaysInFuture = getTime2DaysInFutureOrPast(new Date(), 2);
+        entryWithoutPccTag1.getTimes().add(twoDaysInFuture);
+
+        inputEvents.add(entryWithoutPccTag1);
+        objectUnderTest.setNow(null);
+        objectUnderTest.setExistingEvents(inputEvents);
+
+        try {
+            objectUnderTest.run();
+        } catch (final NullPointerException exception) {
+            LOGGER.error("", exception);
+            Assert.fail(exception.getMessage());
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+            Assert.fail(exception.getMessage());
+        }
+
+    }
+
+    private When getTime2DaysInFutureOrPast(final Date aNow,
+            final int aDaysToAdd) {
         final When time1 = new When();
         final Date startTime1 = DateUtils.addDays(aNow, aDaysToAdd);
         time1.setStartTime(new DateTime(startTime1));
