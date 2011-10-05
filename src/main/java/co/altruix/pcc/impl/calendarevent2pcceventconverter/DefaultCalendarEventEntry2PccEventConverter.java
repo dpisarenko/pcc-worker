@@ -11,6 +11,7 @@
 
 package co.altruix.pcc.impl.calendarevent2pcceventconverter;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,8 +22,9 @@ import at.silverstrike.pcc.api.model.SchedulingObject;
 import at.silverstrike.pcc.api.persistence.Persistence;
 
 import com.google.gdata.data.calendar.CalendarEventEntry;
+import com.google.gdata.data.extensions.When;
 import com.google.inject.Injector;
-
+import com.google.gdata.data.DateTime;
 import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverter;
 
 /**
@@ -54,11 +56,22 @@ public class DefaultCalendarEventEntry2PccEventConverter implements
         }
         long curId = 1;
         for (final CalendarEventEntry curEvent : this.calendarEventEntries) {
-            final Event pccEvent =
-                    this.persistence.createTransientEvent(curId++);
-            pccEvent.setName(curEvent.getTitle().getPlainText());
+            final List<When> times = curEvent.getTimes();
 
+            for (final When curTime : times) {
+                final Event pccEvent =
+                        this.persistence.createTransientEvent(curId++);
+                pccEvent.setName(curEvent.getTitle().getPlainText());
+                pccEvent.setStartDateTime(dateTime2Date(curTime.getStartTime()));
+                pccEvent.setEndDateTime(dateTime2Date(curTime.getEndTime()));
+
+                this.pccEvents.add(pccEvent);
+            }
         }
+    }
+
+    private Date dateTime2Date(DateTime aTime) {
+        return new Date(aTime.getValue());
     }
 
     @Override

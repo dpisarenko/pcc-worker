@@ -53,6 +53,7 @@ public final class DefaultImmediateSchedulingRequestMessageProcessor extends
     
         sendConfirmationForTester(userData, START_CONFIRMATION_MESSAGE);
         exportTasksToFile(userData);
+        exportEventsToImport();
     
         final List<SchedulingObject> createdTasks =
                 importDataFromGoogleTasks(userData);

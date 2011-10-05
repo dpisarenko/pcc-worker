@@ -32,6 +32,8 @@ import at.silverstrike.pcc.api.model.UserData;
 import at.silverstrike.pcc.api.persistence.Persistence;
 import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverter;
 import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverterFactory;
+import co.altruix.pcc.api.eventexporter.EventExporter;
+import co.altruix.pcc.api.eventexporter.EventExporterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendar;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporter;
@@ -50,6 +52,8 @@ import com.google.inject.Injector;
  * 
  */
 public abstract class AbstractSchedulingRequestMessageProcessor {
+    private static final String DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE =
+        "diagnostic_gevents-${timestamp}.csv";
     private static final String DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE =
             "diagnostic_gtasks-${timestamp}.csv";
     private static final String DIAGNOSTIC_GTASKS_FILENAME =
@@ -76,6 +80,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
     public static final Logger LOGGER = LoggerFactory
             .getLogger(AbstractSchedulingRequestMessageProcessor.class);
     private List<CalendarEventEntry> eventsToDelete;
+    private List<CalendarEventEntry> eventsToImport;
 
     public final boolean isMessageProcessingSucceeded() {
         return true;
@@ -182,11 +187,10 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
             LOGGER.error("", exception);
         }
         eventsToDelete = eventImporter.getEventsToDelete();
-        final List<CalendarEventEntry> calendarEventEntriesToImport =
-                eventImporter.getEventsToImport();
+        eventsToImport = eventImporter.getEventsToImport();
 
         final List<SchedulingObject> importedEvents =
-                convertCalendarEventEntriesToPccEvents(calendarEventEntriesToImport);
+                convertCalendarEventEntriesToPccEvents(eventsToImport);
 
         final List<SchedulingObject> returnValue =
                 new LinkedList<SchedulingObject>();
@@ -278,7 +282,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setClientSecret(this.clientSecret);
         exporter.setConsumerKey(this.consumerKey);
         exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
-        exporter.setTargetFile(getTimestampedFile());
+        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE));
 
         try {
             exporter.run();
@@ -288,12 +292,26 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
     }
 
-    private File getTimestampedFile() {
+    private File getTimestampedFile(String aTemplate) {
         final SimpleDateFormat format =
                 new SimpleDateFormat(DIAGNOSTIC_GTASKS_FILENAME);
         final String fileName =
-                DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE.replace("${timestamp}",
+                aTemplate.replace("${timestamp}",
                         format.format(new Date()));
         return new File(fileName);
+    }
+
+    protected void exportEventsToImport() {
+        final EventExporterFactory factory =
+                this.injector.getInstance(EventExporterFactory.class);
+        final EventExporter exporter = factory.create();
+        
+        exporter.setEventsToExport(eventsToImport);
+        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE));
+        try {
+            exporter.run();
+        } catch (final PccException exception) {
+            LOGGER.error("", exception);
+        }
     }
 }

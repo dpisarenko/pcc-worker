@@ -22,6 +22,7 @@ import at.silverstrike.pcc.api.gtaskrelevance2.RelevantTaskSetCalculatorFactory;
 import at.silverstrike.pcc.api.tj3bookingsparser.BookingsFile2BookingsFactory;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
 import co.altruix.pcc.api.calendarevent2pcceventconverter.CalendarEventEntry2PccEventConverterFactory;
+import co.altruix.pcc.api.eventexporter.EventExporterFactory;
 import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilterFactory;
 import co.altruix.pcc.api.exporter2googlecalendar.Exporter2GoogleCalendarFactory;
 import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporterFactory;
@@ -52,6 +53,7 @@ public final class TestDefaultInjectorFactory {
             injector.getInstance(ExistingEventsFilterFactory.class);
             injector.getInstance(GoogleCalendarEventImporterFactory.class);
             injector.getInstance(CalendarEventEntry2PccEventConverterFactory.class);
+            injector.getInstance(EventExporterFactory.class);
             
             final Booking2CalendarEventEntryConverterFactory test =
                     injector.getInstance(Booking2CalendarEventEntryConverterFactory.class);
