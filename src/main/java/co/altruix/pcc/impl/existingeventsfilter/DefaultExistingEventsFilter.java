@@ -21,6 +21,7 @@ import ru.altruix.commons.api.di.PccException;
 
 import co.altruix.pcc.api.existingeventsfilter.ExistingEventsFilter;
 
+import com.google.gdata.data.DateTime;
 import com.google.gdata.data.calendar.CalendarEventEntry;
 
 /**
@@ -32,7 +33,7 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
     private List<CalendarEventEntry> eventsToDelete;
     private List<CalendarEventEntry> eventsToImport;
     private Date now;
-    
+
     public List<CalendarEventEntry> getEventsToDelete() {
         return eventsToDelete;
     }
@@ -56,17 +57,25 @@ final class DefaultExistingEventsFilter implements ExistingEventsFilter {
         }
 
         for (final CalendarEventEntry curEvent : this.existingEvents) {
-            if (curEvent
+            final boolean pccGeneratedEvent = curEvent
                     .getTitle()
                     .getPlainText()
-                    .endsWith(PCC_EVENT_MARKER)) {
+                    .endsWith(PCC_EVENT_MARKER);
+            if (pccGeneratedEvent) {
                 this.eventsToDelete.add(curEvent);
-            } else {
+            } else if (!pccGeneratedEvent && eventInFuture(curEvent)) {
                 this.eventsToImport.add(curEvent);
             }
         }
     }
-    
+
+    private boolean eventInFuture(final CalendarEventEntry aEvent) {
+        final DateTime startDateTime = aEvent.getTimes().get(0).getStartTime();
+        final Date startTime = new Date(startDateTime.getValue());
+
+        return startTime.after(this.now);
+    }
+
     @Override
     public void setNow(final Date aNow) {
         this.now = aNow;
