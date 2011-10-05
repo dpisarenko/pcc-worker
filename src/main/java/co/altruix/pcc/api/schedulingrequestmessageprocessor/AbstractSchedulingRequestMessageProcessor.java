@@ -205,6 +205,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
                 converterFactory.create();
 
         converter.setCalendarEventEntries(calendarEventEntriesToImport);
+        converter.setInjector(this.injector);
         try {
             converter.run();
         } catch (final PccException exception) {
