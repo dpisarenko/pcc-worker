@@ -121,7 +121,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
         calculator.setTaskJugglerPath(this.taskJugglerPath);
-
+        
         try {
             calculator.run();
         } catch (final PccException exception) {
