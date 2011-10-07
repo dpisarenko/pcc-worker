@@ -18,6 +18,7 @@ import org.junit.Test;
 import ru.altruix.commons.api.di.InjectorFactory;
 
 import at.silverstrike.pcc.api.gtaskexporter.GoogleTasksExporterFactory;
+import at.silverstrike.pcc.api.gtaskprioritycalculator.GoogleTasksPriorityCalculatorFactory;
 import at.silverstrike.pcc.api.gtaskrelevance2.RelevantTaskSetCalculatorFactory;
 import at.silverstrike.pcc.api.tj3bookingsparser.BookingsFile2BookingsFactory;
 import co.altruix.pcc.api.booking2calendarevententry.Booking2CalendarEventEntryConverterFactory;
@@ -54,7 +55,7 @@ public final class TestDefaultInjectorFactory {
             injector.getInstance(GoogleCalendarEventImporterFactory.class);
             injector.getInstance(CalendarEventEntry2PccEventConverterFactory.class);
             injector.getInstance(EventExporterFactory.class);
-            
+            injector.getInstance(GoogleTasksPriorityCalculatorFactory.class);
             final Booking2CalendarEventEntryConverterFactory test =
                     injector.getInstance(Booking2CalendarEventEntryConverterFactory.class);
             
