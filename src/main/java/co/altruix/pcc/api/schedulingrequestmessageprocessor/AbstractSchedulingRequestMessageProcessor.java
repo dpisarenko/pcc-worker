@@ -53,7 +53,7 @@ import com.google.inject.Injector;
  */
 public abstract class AbstractSchedulingRequestMessageProcessor {
     private static final String DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE =
-        "diagnostic_gevents-${timestamp}.csv";
+            "diagnostic_gevents-${timestamp}.csv";
     private static final String DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE =
             "diagnostic_gtasks-${timestamp}.csv";
     private static final String DIAGNOSTIC_GTASKS_FILENAME =
@@ -121,7 +121,7 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         calculator.setInjector(this.injector);
         calculator.setUser(aUser);
         calculator.setTaskJugglerPath(this.taskJugglerPath);
-        
+
         try {
             calculator.run();
         } catch (final PccException exception) {
@@ -194,8 +194,14 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
 
         final List<SchedulingObject> returnValue =
                 new LinkedList<SchedulingObject>();
-        returnValue.addAll(importedTasks);
-        returnValue.addAll(importedEvents);
+
+        if (importedTasks != null) {
+            returnValue.addAll(importedTasks);
+        }
+
+        if (importedEvents != null) {
+            returnValue.addAll(importedEvents);
+        }
 
         return returnValue;
     }
@@ -282,7 +288,8 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         exporter.setClientSecret(this.clientSecret);
         exporter.setConsumerKey(this.consumerKey);
         exporter.setRefreshToken(aUser.getGoogleTasksRefreshToken());
-        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE, aTime));
+        exporter.setTargetFile(getTimestampedFile(
+                DIAGNOSTIC_GTASKS_FILENAME_TEMPLATE, aTime));
 
         try {
             exporter.run();
@@ -305,9 +312,10 @@ public abstract class AbstractSchedulingRequestMessageProcessor {
         final EventExporterFactory factory =
                 this.injector.getInstance(EventExporterFactory.class);
         final EventExporter exporter = factory.create();
-        
+
         exporter.setEventsToExport(eventsToImport);
-        exporter.setTargetFile(getTimestampedFile(DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE, aTime));
+        exporter.setTargetFile(getTimestampedFile(
+                DIAGNOSTIC_GEVENTS_FILENAME_TEMPLATE, aTime));
         try {
             exporter.run();
         } catch (final PccException exception) {
