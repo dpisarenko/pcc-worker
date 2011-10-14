@@ -39,7 +39,7 @@ class MockInjectorModuleDefect201110141 extends AbstractModule {
                 new MockGoogleTasksImporterFactory());
         bind(Persistence.class).toInstance(new MockPersistenceAdapter() {
         });
-        bind(CalendarEventEntry2PccEventConverterFactory.class).toIntance(
+        bind(CalendarEventEntry2PccEventConverterFactory.class).toInstance(
                 new DefaultCalendarEventEntry2PccEventConverterFactory());
     }
 
