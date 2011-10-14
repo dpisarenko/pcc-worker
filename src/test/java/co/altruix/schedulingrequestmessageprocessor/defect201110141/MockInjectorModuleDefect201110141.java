@@ -17,6 +17,7 @@ import at.silverstrike.pcc.impl.gtaskexporter.DefaultGoogleTasksExporterFactory;
 import at.silverstrike.pcc.impl.mockpersistence.MockPersistenceAdapter;
 
 import co.altruix.pcc.api.gcaleventimporter.GoogleCalendarEventImporterFactory;
+import co.altruix.pcc.api.googletasksimporter.GoogleTasksImporterFactory;
 
 import com.google.inject.AbstractModule;
 
@@ -32,6 +33,8 @@ class MockInjectorModuleDefect201110141 extends AbstractModule {
                 new DefaultGoogleTasksExporterFactory());
         bind(GoogleCalendarEventImporterFactory.class).toInstance(
                 new MockGoogleCalendarEventImporterFactory());
+        bind(GoogleTasksImporterFactory.class).toInstance(
+                new MockGoogleTasksImporterFactory());
         bind(Persistence.class).toInstance(new MockPersistenceAdapter() {
         });
     }
